@@ -1,19 +1,29 @@
 import type { Metadata } from "next";
+import { Montserrat } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 import ThemeProvider from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-sans",
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+
+const monda = localFont({
+  src: [
+    {
+      path: "./fonts/Monda-VariableFont_wght.ttf",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Monda-Bold.ttf",
+      style: "normal",
+      weight: "700",
+    },
+  ],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -29,7 +39,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased font-mono`}
+        className={cn(
+          "bg-background font-sans antialiased",
+          montserrat.variable,
+          monda.variable
+        )}
       >
         <ThemeProvider
           attribute="class"
