@@ -1,28 +1,43 @@
-# Training Tracker
+# Origami-CF
 
-This is a [web app](https://cp-training-tracker.vercel.app/) that helps you track your training history and performance for Competitive Programming.
+Origami-CF is a web application designed to help competitive programmers practice on Codeforces by creating custom virtual contests. It allows you to track your progress, analyze your performance, and focus on specific topics to improve your skills.
 
-The idea of this app is inspired by [this blog post](https://codeforces.com/blog/entry/136704). Huge thanks to the [author](https://codeforces.com/profile/pwned).
+## Features
 
-## Usage
+- **Virtual Contests:** Create custom contests based on tags and rating.
+- **Performance Tracking:** Get detailed statistics on your problem-solving history.
+- **Upsolving List:** Keep track of problems you attempted but didn't solve during a contest.
+- **Tag-based Practice:** Focus on specific topics you want to improve on.
 
-1. Enter your Codeforces handle in Home page.
-2. Generate random problems in Training page. You can also generate problems with tags.
-3. View your training history in Statistics page.
+## Tech Stack
 
-## Note
+- **Framework:** [Next.js](https://nextjs.org/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
+- **Database:** [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/)
 
-1. The data are fetched from Codeforces API, so it may take a while to load.
-2. The calculation of rating of generated problems and performance are from [this blog post](https://codeforces.com/blog/entry/136704).
-3. For now, all the data (user info, training history, etc.) are stored in your browser's local storage, so once you clear the data, you will lose all your training history.
+## Installation
 
-## Contributing
+1.  **Clone the repository:**
 
-If you have any ideas or suggestions, please feel free to open an issue or a pull request.
+    ```bash
+    git clone https://github.com/KingShivamX/Origami-CF.git
+    cd Origami-CF
+    ```
 
-### Run locally
+2.  **Install dependencies:**
 
-1. Clone the repository.
-2. Create a `.env.local` file and add your MongoDB URI and a JWT secret.
-3. Run `npm install`.
-4. Run `npm run dev`.
+    ```bash
+    npm install
+    ```
+
+3.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Acknowledgments
+
+This project is inspired by the work of [C0ldSmi1e](https://github.com/C0ldSmi1e/training-tracker) and ThemeCP.

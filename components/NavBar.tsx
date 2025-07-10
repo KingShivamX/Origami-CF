@@ -24,7 +24,7 @@ const NavBar = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="text-xl font-bold">
-            Training Tracker
+            Origami-CF
           </Link>
           <div className="hidden sm:flex items-center space-x-4">
             {links.map((link) => (

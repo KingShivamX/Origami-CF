@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 import ThemeProvider from "@/components/ThemeProvider";
+import { cn } from "@/lib/utils";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -16,8 +17,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Training Tracker",
-  description: "A tool for tracking competitive programming training",
+  title: "Origami-CF",
+  description: "A Codeforces virtual contest practice website.",
 };
 
 export default function RootLayout({
