@@ -32,7 +32,7 @@ const useUser = () => {
   const register = async (
     codeforcesHandle: string,
     password: string
-  ): Promise<Response<null>> => {
+  ): Promise<Response<User>> => {
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
@@ -43,7 +43,13 @@ const useUser = () => {
       if (!res.ok) {
         return ErrorResponse(data.message);
       }
-      return SuccessResponse(data.message);
+
+      // Save token and user to session storage
+      sessionStorage.setItem("token", data.token);
+      sessionStorage.setItem("user", JSON.stringify(data.user));
+
+      await mutate(data.user, false);
+      return SuccessResponse(data.user);
     } catch (error) {
       return ErrorResponse("Failed to connect to the server.");
     }

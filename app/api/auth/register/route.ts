@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 import getUser from "@/utils/codeforces/getUser";
@@ -56,8 +57,23 @@ export async function POST(req: Request) {
 
     await newUser.save();
 
+    // Create a JWT token
+    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, {
+      expiresIn: "1d", // Token expires in 1 day
+    });
+
     return NextResponse.json(
-      { message: "User registered successfully" },
+      {
+        message: "User registered successfully",
+        token,
+        user: {
+          _id: newUser._id,
+          codeforcesHandle: newUser.codeforcesHandle,
+          rating: newUser.rating,
+          avatar: newUser.avatar,
+          rank: newUser.rank,
+        },
+      },
       { status: 201 }
     );
   } catch (error) {

@@ -11,12 +11,20 @@ const Settings = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const { login, register } = useUser();
+
+  const handleToggleForm = () => {
+    setIsLogin(!isLogin);
+    setError(null);
+    setSuccess(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       const response = isLogin
@@ -25,6 +33,11 @@ const Settings = () => {
 
       if (!response.success) {
         setError(response.error || "An unknown error occurred.");
+      } else {
+        if (!isLogin) {
+          setSuccess("Registration successful! You are now logged in.");
+        }
+        // On successful login, the parent component will re-render and show the profile
       }
     } catch (err) {
       setError("Failed to connect to the server.");
@@ -55,11 +68,14 @@ const Settings = () => {
           className="h-12"
         />
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+        {success && (
+          <p className="text-green-500 text-sm text-center">{success}</p>
+        )}
         <Button type="submit" disabled={isLoading} className="w-full h-12">
           {isLoading ? "Loading..." : isLogin ? "Login" : "Register"}
         </Button>
       </form>
-      <Button variant="link" onClick={() => setIsLogin(!isLogin)}>
+      <Button variant="link" onClick={handleToggleForm}>
         {isLogin
           ? "Don't have an account? Register"
           : "Already have an account? Login"}

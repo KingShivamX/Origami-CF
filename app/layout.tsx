@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
+import AuthGuard from "@/components/AuthGuard";
 import NavBar from "@/components/NavBar";
 import ThemeProvider from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
@@ -52,7 +53,9 @@ export default function RootLayout({
         >
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <NavBar />
-            <main className="pt-16 pb-8">{children}</main>
+            <main className="pt-16 pb-8">
+              <AuthGuard>{children}</AuthGuard>
+            </main>
           </div>
         </ThemeProvider>
       </body>
