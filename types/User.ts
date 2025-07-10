@@ -1,10 +1,11 @@
-import { Level } from "@/types/Level";
-
 type User = {
   codeforcesHandle: string;
   rating: number;
   avatar: string;
-  level: Level;
+  rank?: string;
+  maxRank?: string;
+  maxRating?: number;
+  organization?: string;
 };
 
 export type { User };

@@ -1,8 +1,13 @@
-import { Level } from "@/types/Level";
 import { TrainingProblem } from "@/types/TrainingProblem";
 
 type Training = {
-  level: Level;
+  customRatings: {
+    P1: number;
+    P2: number;
+    P3: number;
+    P4: number;
+  };
+  contestTime: number;
   startTime: number;
   endTime: number;
   problems: TrainingProblem[];

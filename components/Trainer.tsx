@@ -19,7 +19,9 @@ const ProblemLink = ({
   const getSolvedStatus = () => {
     if (!isTraining) return "";
     if (problem.solvedTime && startTime) {
-      const solvedMinutes = Math.floor((problem.solvedTime - startTime) / 60000);
+      const solvedMinutes = Math.floor(
+        (problem.solvedTime - startTime) / 60000
+      );
       return `✅ ${solvedMinutes}m `;
     }
     return "⌛ ";
@@ -49,18 +51,30 @@ const Trainer = ({
   selectedTags,
   lb,
   ub,
+  customRatings,
+  contestTime,
 }: {
   isTraining: boolean;
   training: Training | null;
   problems: TrainingProblem[] | null;
-  generateProblems: (tags: ProblemTag[], lb: number, ub: number) => void;
-  startTraining: () => void;
+  generateProblems: (
+    tags: ProblemTag[],
+    lb: number,
+    ub: number,
+    customRatings: { P1: number; P2: number; P3: number; P4: number }
+  ) => void;
+  startTraining: (
+    customRatings: { P1: number; P2: number; P3: number; P4: number },
+    contestTime: number
+  ) => void;
   stopTraining: () => void;
   refreshProblemStatus: () => void;
   finishTraining: () => void;
   selectedTags: ProblemTag[];
   lb: number;
   ub: number;
+  customRatings: { P1: number; P2: number; P3: number; P4: number };
+  contestTime: number;
 }) => {
   const onFinishTraining = () => {
     if (confirm("Are you sure to finish the training?")) {
@@ -78,7 +92,10 @@ const Trainer = ({
     <Card>
       <CardContent className="pt-6 space-y-4">
         <div className="flex flex-wrap justify-between gap-4">
-          {(isTraining && training?.problems ? training.problems : problems)?.map((problem) => (
+          {(isTraining && training?.problems
+            ? training.problems
+            : problems
+          )?.map((problem) => (
             <ProblemLink
               key={`${problem.contestId}-${problem.index}`}
               problem={problem}
@@ -97,12 +114,18 @@ const Trainer = ({
           {!isTraining ? (
             <>
               <Button
-                onClick={() => generateProblems(selectedTags,lb,ub)}
+                onClick={() =>
+                  generateProblems(selectedTags, lb, ub, customRatings)
+                }
               >
-                {problems && problems.length > 0 ? "Regenerate" : "Generate Problems"}
+                {problems && problems.length > 0
+                  ? "Regenerate"
+                  : "Generate Problems"}
               </Button>
               {problems && problems.length > 0 && (
-                <Button onClick={startTraining}>
+                <Button
+                  onClick={() => startTraining(customRatings, contestTime)}
+                >
                   Start
                 </Button>
               )}
@@ -115,9 +138,7 @@ const Trainer = ({
                   endTime={training.endTime}
                 />
                 <div className="flex gap-4">
-                  <Button onClick={onFinishTraining}>
-                    Finish
-                  </Button>
+                  <Button onClick={onFinishTraining}>Finish</Button>
                   <Button variant="destructive" onClick={onStopTraining}>
                     Stop
                   </Button>

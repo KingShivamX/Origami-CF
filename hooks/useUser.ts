@@ -1,136 +1,92 @@
 import { useEffect } from "react";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { User } from "@/types/User";
-import getUser from "@/utils/codeforces/getUser";
-import { getLevel, getLevelByRating } from "@/utils/getLevel";
-import { SuccessResponse, ErrorResponse } from "@/types/Response";
+import { SuccessResponse, ErrorResponse, Response } from "@/types/Response";
 
-const USER_STORAGE_KEY = "training-tracker-user";
 const USER_CACHE_KEY = "codeforces-user";
 
-const getStoredUser = () => {
-  try {
-    const stored = localStorage.getItem(USER_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : null;
-  } catch {
-    return null;
-  }
-};
-
 const useUser = () => {
-  const { data: user, isLoading, mutate, error } = useSWR<User | null>(
+  const {
+    data: user,
+    isLoading,
+    mutate,
+    error,
+  } = useSWR<User | null>(
     USER_CACHE_KEY,
-    getStoredUser,
+    null, // We will manage fetching manually or from session
     {
-      fallbackData: getStoredUser(),
       revalidateOnFocus: false,
-      revalidateOnReconnect: false
+      revalidateOnReconnect: false,
     }
   );
 
   useEffect(() => {
-    const fetchLatestUser = async () => {
-      if (!user?.codeforcesHandle) return;
-      const res = await getUser(user.codeforcesHandle);
-      if (!res.success) return;
-      const profile = res.data;
-      if (
-        profile.rating !== user.rating ||
-        profile.avatar !== user.avatar
-      ) {
-        const newUser = {
-          codeforcesHandle: profile.handle as string,
-          avatar: profile.avatar as string,
-          rating: profile.rating as number,
-          level: getLevelByRating(profile.rating),
-        };
-        await mutate(newUser, { revalidate: false });
-      }
-    };
-    fetchLatestUser();
-  }, [user?.codeforcesHandle]);
-
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+    // Attempt to load user from session storage on initial load
+    const token = sessionStorage.getItem("token");
+    const storedUser = sessionStorage.getItem("user");
+    if (token && storedUser) {
+      mutate(JSON.parse(storedUser), false);
     }
-  }, [user]);
+  }, [mutate]);
 
-  const updateUser = async (codeforcesHandle: string) => {
+  const register = async (
+    codeforcesHandle: string,
+    password: string
+  ): Promise<Response<null>> => {
     try {
-      const res = await getUser(codeforcesHandle);
-      if (!res.success) {
-        throw new Error("Failed to fetch user");
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ codeforcesHandle, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return ErrorResponse(data.message);
       }
-      
-      const profile = res.data;
-      const newUser = {
-        codeforcesHandle: profile.handle as string,
-        avatar: profile.avatar as string,
-        rating: profile.rating as number,
-        level: getLevelByRating(profile.rating),
-      };
-      
-      await mutate(newUser, { revalidate: false });
-      return SuccessResponse("User updated successfully");
+      return SuccessResponse(data.message);
     } catch (error) {
-      console.error("Error updating user:", error);
-      return ErrorResponse("Failed to update user");
+      return ErrorResponse("Failed to connect to the server.");
     }
   };
 
-  const changeUserLevel = async (newLevelNumber: number) => {
-    if (!user) {
-      return ErrorResponse("User not found");
-    }
-
-    const originalLevel = user.level;
-    const newLevel = getLevel(newLevelNumber);
-
+  const login = async (
+    codeforcesHandle: string,
+    password: string
+  ): Promise<Response<User>> => {
     try {
-      await mutate({ ...user, level: newLevel }, { revalidate: false });
-      return SuccessResponse("User level updated successfully");
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ codeforcesHandle, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return ErrorResponse(data.message);
+      }
+
+      // Save token and user to session storage
+      sessionStorage.setItem("token", data.token);
+      sessionStorage.setItem("user", JSON.stringify(data.user));
+
+      await mutate(data.user, false);
+      return SuccessResponse(data.user);
     } catch (error) {
-      await mutate({ ...user, level: originalLevel }, { revalidate: false });
-      console.error("Error updating user level:", error);
-      return ErrorResponse("Failed to update user level");
-    }
-  };
-
-  const updateUserLevel = async ({ delta }: { delta: number }) => {
-    // update user level after training
-    if (!user) {
-      return ErrorResponse("User not found");
-    }
-
-    const newLevel = getLevel(+user.level.level + delta);
-
-    if (!newLevel || +newLevel.level < 1 || +newLevel.level > 109) {
-      return ErrorResponse("Failed to update user level");
-    }
-
-    try {
-      await mutate({ ...user, level: newLevel }, { revalidate: false });
-      return SuccessResponse("User level updated successfully");
-    } catch (error) {
-      console.error("Error updating user level:", error);
-      return ErrorResponse("Failed to update user level");
+      return ErrorResponse("Failed to connect to the server.");
     }
   };
 
   const logout = () => {
-    mutate(null, { revalidate: false });
-    localStorage.removeItem(USER_STORAGE_KEY);
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+    mutate(null, false);
   };
 
   return {
     user,
     isLoading,
     error,
-
-    updateUser,
-    updateUserLevel,
-    changeUserLevel,
+    register,
+    login,
     logout,
   };
 };

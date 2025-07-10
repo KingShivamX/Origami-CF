@@ -19,7 +19,7 @@ const TagSelector = ({
         Problems will be generated randomly if no tags are selected.
       </span>
       <ScrollArea className="w-full rounded-md border">
-        <div className="flex flex-wrap gap-2 p-4">
+        <div className="flex flex-wrap justify-center gap-x-1 gap-y-1 p-2">
           {allTags.map((tag) => (
             <Button
               key={tag.value}
@@ -32,11 +32,7 @@ const TagSelector = ({
           ))}
         </div>
       </ScrollArea>
-      <Button
-        variant="destructive"
-        size="sm"
-        onClick={onClearTags}
-      >
+      <Button variant="destructive" size="sm" onClick={onClearTags}>
         Clear All
       </Button>
     </div>

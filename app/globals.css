@@ -70,3 +70,14 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide native number input spinners */
+.hide-spinners {
+  -moz-appearance: textfield;
+}
+
+.hide-spinners::-webkit-outer-spin-button,
+.hide-spinners::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

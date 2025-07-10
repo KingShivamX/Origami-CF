@@ -12,10 +12,18 @@ import {
 } from "@/components/ui/table";
 import { Trash2 } from "lucide-react";
 
-const Problem = ({ problem, startTime }: { problem: TrainingProblem; startTime: number }) => {
+const Problem = ({
+  problem,
+  startTime,
+}: {
+  problem: TrainingProblem;
+  startTime: number;
+}) => {
   const getSolvedStatus = () => {
     if (problem.solvedTime) {
-      const solvedMinutes = Math.floor((problem.solvedTime - startTime) / 60000);
+      const solvedMinutes = Math.floor(
+        (problem.solvedTime - startTime) / 60000
+      );
       return `✅ ${solvedMinutes}m `;
     }
     return "❌ ";
@@ -45,13 +53,34 @@ const History = ({
     }
   };
 
+  if (history.length === 0) {
+    return (
+      <div className="text-center text-muted-foreground py-8">
+        No training history yet. Complete some trainings to see your progress!
+      </div>
+    );
+  }
+
+  const calculateAverageRating = (training: Training) => {
+    const ratings = [
+      training.customRatings.P1,
+      training.customRatings.P2,
+      training.customRatings.P3,
+      training.customRatings.P4,
+    ];
+    return Math.round(
+      ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
+    );
+  };
+
   return (
     <div className="w-full overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Date</TableHead>
-            <TableHead>Level</TableHead>
+            <TableHead>Avg Rating</TableHead>
+            <TableHead>Contest Time</TableHead>
             {history[0].problems.map((_, index) => (
               <TableHead key={index}>P{index + 1}</TableHead>
             ))}
@@ -62,8 +91,11 @@ const History = ({
         <TableBody>
           {history.map((training) => (
             <TableRow key={training.startTime}>
-              <TableCell>{new Date(training.startTime).toLocaleDateString()}</TableCell>
-              <TableCell>{training.level.level}</TableCell>
+              <TableCell>
+                {new Date(training.startTime).toLocaleDateString()}
+              </TableCell>
+              <TableCell>{calculateAverageRating(training)}</TableCell>
+              <TableCell>{training.contestTime}m</TableCell>
               {training.problems.map((p) => (
                 <TableCell key={p.contestId}>
                   <Problem problem={p} startTime={training.startTime} />
@@ -71,7 +103,11 @@ const History = ({
               ))}
               <TableCell>{training.performance}</TableCell>
               <TableCell>
-                <Button variant="ghost" size="sm" onClick={() => onDelete(training)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onDelete(training)}
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </TableCell>
@@ -84,4 +120,3 @@ const History = ({
 };
 
 export default History;
-

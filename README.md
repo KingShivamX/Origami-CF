@@ -23,5 +23,6 @@ If you have any ideas or suggestions, please feel free to open an issue or a pul
 ### Run locally
 
 1. Clone the repository.
-2. Run `npm install`. You might need to add `--legacy-peer-deps` option to install the dependencies.
-3. Run `npm run dev`.
+2. Create a `.env.local` file and add your MongoDB URI and a JWT secret.
+3. Run `npm install`.
+4. Run `npm run dev`.

@@ -32,8 +32,7 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
           disableTransitionOnChange
         >
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -45,4 +44,3 @@ export default function RootLayout({
     </html>
   );
 }
-

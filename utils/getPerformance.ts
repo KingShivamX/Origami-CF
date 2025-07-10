@@ -1,52 +1,53 @@
 import { Training } from "@/types/Training";
 
 const getPerformance = (training: Training) => {
-  const level = parseInt(training.level.level);
-  
-  // Extract problem ratings (EFGH columns)
-  const ratings = training.problems.map(p => p.rating);
-  
-  // Calculate solved times (IJKL columns)
-  // Subtract startTime to get relative solving time
-  const solvedTimes = training.problems.map(p => 
+  // Extract problem ratings from custom ratings
+  const ratings = [
+    training.customRatings.P1,
+    training.customRatings.P2,
+    training.customRatings.P3,
+    training.customRatings.P4,
+  ];
+
+  // Calculate solved times in minutes
+  const solvedTimes = training.problems.map((p) =>
     p.solvedTime ? (p.solvedTime - training.startTime) / 60000 : null
   );
 
-  // Helper function to calculate max threshold based on level
-  const getMaxThreshold = (isLastProblem: boolean) => {
-    const base = isLastProblem ? 120 : 135;
-    const max = isLastProblem ? 180 : 195;
-    return Math.max(base, Math.min(max, base + 2.5 * (level - 52)));
-  };
+  // Calculate average rating
+  const averageRating =
+    ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
 
-  // Main calculation logic following the Excel formula
+  // Use contest time for threshold calculation
+  const maxThreshold = training.contestTime;
+
+  // Simplified performance calculation based on solved problems and timing
   let performance;
 
-  if (solvedTimes[3] === null) { // L column is blank
-    if (solvedTimes[2] === null) { // K column is blank
-      if (solvedTimes[1] === null) { // J column is blank
-        if (solvedTimes[0] === null) { // I column is blank
-          performance = ratings[0] - 50;
-        } else {
-          const maxThreshold = getMaxThreshold(false);
-          performance = (solvedTimes[0] / maxThreshold) * ratings[0] + 
-                       ((maxThreshold - solvedTimes[0]) / maxThreshold) * ratings[1];
-        }
-      } else {
-        const maxThreshold = getMaxThreshold(false);
-        performance = (solvedTimes[1] / maxThreshold) * ratings[1] + 
-                     ((maxThreshold - solvedTimes[1]) / maxThreshold) * ratings[2];
-      }
-    } else {
-      const maxThreshold = getMaxThreshold(false);
-      performance = (solvedTimes[2] / maxThreshold) * ratings[2] + 
-                   ((maxThreshold - solvedTimes[2]) / maxThreshold) * ratings[3];
-    }
+  // Count solved problems
+  const solvedCount = solvedTimes.filter((time) => time !== null).length;
+
+  if (solvedCount === 0) {
+    // No problems solved - performance is below average
+    performance = averageRating - 100;
+  } else if (solvedCount === 4) {
+    // All problems solved - calculate based on timing
+    const validSolveTimes = solvedTimes.filter(
+      (time): time is number => time !== null
+    );
+    const totalSolveTime = validSolveTimes.reduce((sum, time) => sum + time, 0);
+    const avgSolveTime = totalSolveTime / validSolveTimes.length;
+
+    // Performance scales with speed - faster solving = higher performance
+    const speedFactor = Math.max(
+      0.5,
+      Math.min(1.5, maxThreshold / 2 / avgSolveTime)
+    );
+    performance = averageRating + (speedFactor - 1) * 100;
   } else {
-    const maxThreshold = getMaxThreshold(true);
-    performance = (solvedTimes[3] / maxThreshold) * ratings[3] + 
-                 ((maxThreshold - solvedTimes[3]) / maxThreshold) * (ratings[3] + 400) + 
-                 ((level - 1) % 4) * 12.5;
+    // Partial solve - performance between average and below average
+    const solveRatio = solvedCount / 4;
+    performance = averageRating - 50 + solveRatio * 100;
   }
 
   return Math.round(performance);

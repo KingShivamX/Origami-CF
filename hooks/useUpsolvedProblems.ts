@@ -47,8 +47,10 @@ const useUpsolvedProblems = () => {
       }
       return problem;
     });
-    
-    if (JSON.stringify(newUpsolvedProblems) !== JSON.stringify(upsolvedProblems)) {
+
+    if (
+      JSON.stringify(newUpsolvedProblems) !== JSON.stringify(upsolvedProblems)
+    ) {
       await mutate(newUpsolvedProblems, { revalidate: false });
     }
   }, [upsolvedProblems, solvedProblems, mutate]);
@@ -59,10 +61,12 @@ const useUpsolvedProblems = () => {
     }
   }, [solvedProblems, refreshUpsolvedProblems]);
 
-
   useEffect(() => {
     if (upsolvedProblems) {
-      localStorage.setItem(UPSOLVED_PROBLEMS_CACHE_KEY, JSON.stringify(upsolvedProblems));
+      localStorage.setItem(
+        UPSOLVED_PROBLEMS_CACHE_KEY,
+        JSON.stringify(upsolvedProblems)
+      );
     }
   }, [upsolvedProblems]);
 
@@ -70,9 +74,11 @@ const useUpsolvedProblems = () => {
     try {
       // Filter out problems that are already in the list
       const newProblems = problems.filter(
-        problem => !upsolvedProblems?.some(
-          p => p.contestId === problem.contestId && p.index === problem.index
-        )
+        (problem) =>
+          !upsolvedProblems?.some(
+            (p) =>
+              p.contestId === problem.contestId && p.index === problem.index
+          )
       );
 
       if (newProblems.length === 0) {
@@ -89,7 +95,9 @@ const useUpsolvedProblems = () => {
 
   const deleteUpsolvedProblem = async (problem: TrainingProblem) => {
     try {
-      const newUpsolvedProblems = upsolvedProblems?.filter((p) => p.contestId !== problem.contestId && p.index !== problem.index);
+      const newUpsolvedProblems = upsolvedProblems?.filter(
+        (p) => p.contestId !== problem.contestId && p.index !== problem.index
+      );
       await mutate(newUpsolvedProblems, { revalidate: false });
       return SuccessResponse(newUpsolvedProblems);
     } catch (error) {

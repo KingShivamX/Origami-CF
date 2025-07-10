@@ -1,63 +1,84 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import useUser from "@/hooks/useUser";
+import { useEffect } from "react";
+import useSWR from "swr";
 import { Training } from "@/types/Training";
 import getPerformance from "@/utils/getPerformance";
 
-const HISTORY_STORAGE_KEY = "training-tracker-history";
+// Define a custom error type
+interface FetchError extends Error {
+  info?: any;
+  status?: number;
+}
+
+const fetcher = async (url: string) => {
+  const token = sessionStorage.getItem("token");
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const error: FetchError = new Error(
+      "An error occurred while fetching the data."
+    );
+    // Attach extra info to the error object.
+    error.info = await res.json();
+    error.status = res.status;
+    throw error;
+  }
+
+  return res.json();
+};
 
 const useHistory = () => {
-  const router = useRouter();
-  const { user, isLoading: isUserLoading } = useUser();
-  const [history, setHistory] = useState<Training[]>([]);
-  // Redirect if no user
-  useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push("/");
-    }
-  }, [user, isUserLoading, router]);
+  const {
+    data: history,
+    error,
+    mutate,
+  } = useSWR<Training[]>("/api/trainings", fetcher);
 
-  // Load history from localStorage
-  useEffect(() => {
-    const history = localStorage.getItem(HISTORY_STORAGE_KEY);
-    if (history) {
-      setHistory(JSON.parse(history));
-    }
-  }, []);
-
-  const addTraining = (training: Training) => {
+  const addTraining = async (training: Training) => {
     const performance = getPerformance(training);
-
     const newTraining = { ...training, performance };
 
-    setHistory((prev) => [...prev, newTraining]);
+    const token = sessionStorage.getItem("token");
 
-    localStorage.setItem(
-      HISTORY_STORAGE_KEY,
-      JSON.stringify([...history, newTraining])
-    );
+    try {
+      const res = await fetch("/api/trainings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newTraining),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to save training");
+      }
+
+      // Revalidate the SWR cache to show the new training
+      mutate();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const deleteTraining = (training: Training) => {
-    setHistory((prev) => prev.filter((t) => t.startTime !== training.startTime));
-    localStorage.setItem(
-      HISTORY_STORAGE_KEY,
-      JSON.stringify(history.filter((t) => t.startTime !== training.startTime))
+  const deleteTraining = async (trainingId: string) => {
+    // Note: The delete endpoint is not implemented in this pass
+    // For now, we just remove it from the local state
+    mutate(
+      history?.filter((t) => (t as any)._id !== trainingId),
+      false
     );
-  };
-
-  const clearHistory = () => {
-    setHistory([]);
-    localStorage.removeItem(HISTORY_STORAGE_KEY);
   };
 
   return {
-    history,
-    isLoading: isUserLoading,
-
+    history: history || [],
+    isLoading: !error && !history,
+    error,
     addTraining,
     deleteTraining,
-    clearHistory,
   };
 };
 

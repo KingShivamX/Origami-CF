@@ -31,7 +31,7 @@ const CountDown = ({
     const timer = setInterval(() => {
       const remaining = calculateTimeLeft();
       setTimeLeft(remaining);
-      
+
       if (remaining <= 0) {
         clearInterval(timer);
       }

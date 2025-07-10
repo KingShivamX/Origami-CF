@@ -12,11 +12,7 @@ const TRAINING_STORAGE_KEY = "training-tracker-training";
 
 const useTraining = () => {
   const router = useRouter();
-  const {
-    user,
-    isLoading: isUserLoading,
-    updateUserLevel,
-  } = useUser();
+  const { user, isLoading: isUserLoading } = useUser();
   const {
     solvedProblems,
     isLoading: isProblemsLoading,
@@ -26,7 +22,6 @@ const useTraining = () => {
   const { addTraining } = useHistory();
   const { addUpsolvedProblems } = useUpsolvedProblems();
 
-
   const [problems, setProblems] = useState<TrainingProblem[]>([]);
   const [training, setTraining] = useState<Training | null>(null);
   const [isTraining, setIsTraining] = useState(false);
@@ -34,46 +29,34 @@ const useTraining = () => {
   const timerRef = useRef<NodeJS.Timeout>();
 
   const updateProblemStatus = useCallback(() => {
+    if (!training || !solvedProblems) {
+      return;
+    }
+
     const solvedProblemIds = new Set(
       solvedProblems.map((p) => `${p.contestId}_${p.index}`)
     );
 
-    setTraining(prev => {
-      if (!prev) {
-        return null;
-      }
-      
-      const updatedProblems = prev.problems.map(problem => ({
-        ...problem,
-        solvedTime: solvedProblemIds.has(`${problem.contestId}_${problem.index}`)
-          ? problem.solvedTime ?? new Date().getTime()
-          : problem.solvedTime
-      }));
+    const updatedProblems = training.problems.map((problem) => ({
+      ...problem,
+      solvedTime: solvedProblemIds.has(`${problem.contestId}_${problem.index}`)
+        ? (problem.solvedTime ?? new Date().getTime())
+        : problem.solvedTime,
+    }));
 
-      // Only update if there are changes
-      if (JSON.stringify(prev.problems) === JSON.stringify(updatedProblems)) {
-        return prev;
-      }
+    setTraining((prev) =>
+      prev ? { ...prev, problems: updatedProblems } : null
+    );
+  }, [training, solvedProblems]);
 
-      const updatedTraining = {
-        ...prev,
-        problems: updatedProblems
-      };
-
-      localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(updatedTraining));
-      return updatedTraining;
-    });
-  }, [solvedProblems]);
-
-  const refreshProblemStatus = useCallback(async () => {
-    await refreshSolvedProblems();
-    updateProblemStatus();
-  }, [refreshSolvedProblems, updateProblemStatus]);
+  const refreshProblemStatus = useCallback(() => {
+    refreshSolvedProblems();
+  }, [refreshSolvedProblems]);
 
   const finishTraining = useCallback(async () => {
     // Immediately set training state to false to prevent any race conditions
     setIsTraining(false);
-    
+
     // Clear any existing timer first
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -82,7 +65,7 @@ const useTraining = () => {
 
     // Capture current training value before clearing state
     const currentTraining = training;
-    
+
     // Clear all training-related states immediately
     setProblems([]);
     setTraining(null);
@@ -103,27 +86,27 @@ const useTraining = () => {
       latestSolvedProblems.map((p) => `${p.contestId}_${p.index}`)
     );
 
-    const updatedProblems = currentTraining.problems.map(problem => ({
+    const updatedProblems = currentTraining.problems.map((problem) => ({
       ...problem,
       solvedTime: solvedProblemIds.has(`${problem.contestId}_${problem.index}`)
-        ? problem.solvedTime ?? new Date().getTime()
-        : problem.solvedTime
-    }));  
+        ? (problem.solvedTime ?? new Date().getTime())
+        : problem.solvedTime,
+    }));
 
     addTraining({ ...currentTraining, problems: updatedProblems });
 
-    // if solved all problems, user level +1
-    // otherwise, user level -1
-    const delta = updatedProblems.every((p) => p.solvedTime) ? 1 : -1;
-    updateUserLevel({ delta });
-
     // Add unsolved problems to upsolved problems list
-    const unsolvedProblems = updatedProblems.filter(p => !p.solvedTime);
+    const unsolvedProblems = updatedProblems.filter((p) => !p.solvedTime);
     addUpsolvedProblems(unsolvedProblems);
 
     router.push("/statistics");
-
-  }, [training, addTraining, router, refreshSolvedProblems, updateUserLevel, addUpsolvedProblems]);
+  }, [
+    training,
+    addTraining,
+    router,
+    refreshSolvedProblems,
+    addUpsolvedProblems,
+  ]);
 
   // Redirect if no user
   useEffect(() => {
@@ -140,8 +123,6 @@ const useTraining = () => {
       setTraining(parsed);
     }
   }, []);
-
-
 
   // Update training in localStorage
   useEffect(() => {
@@ -196,23 +177,24 @@ const useTraining = () => {
     updateProblemStatus();
   }, [isTraining, training, solvedProblems, updateProblemStatus]);
 
-
-
-  const startTraining = () => {
+  const startTraining = (
+    customRatings: { P1: number; P2: number; P3: number; P4: number },
+    contestTime: number
+  ) => {
     if (!user) {
       router.push("/");
       return;
     }
 
-    // Will start in 30 seconds
+    // Will start in 10 seconds
     const startTime = new Date().getTime() + 10000;
-
-    const endTime = startTime + parseInt(user.level.time) * 60000;
+    const endTime = startTime + contestTime * 60000;
 
     setTraining({
       startTime,
       endTime,
-      level: user.level,
+      customRatings,
+      contestTime,
       problems,
       performance: 0,
     });
@@ -224,8 +206,13 @@ const useTraining = () => {
     localStorage.removeItem(TRAINING_STORAGE_KEY);
   };
 
-  const generateProblems = (tags: ProblemTag[], lb: number, ub: number) => {
-    const newProblems = getRandomProblems(tags, lb, ub);
+  const generateProblems = (
+    tags: ProblemTag[],
+    lb: number,
+    ub: number,
+    customRatings: { P1: number; P2: number; P3: number; P4: number }
+  ) => {
+    const newProblems = getRandomProblems(tags, lb, ub, customRatings);
     if (newProblems) {
       setProblems(newProblems);
     }
@@ -234,7 +221,6 @@ const useTraining = () => {
   return {
     problems,
     isLoading: isUserLoading || isProblemsLoading,
-
     training,
     isTraining,
     generateProblems,
