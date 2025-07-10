@@ -1,22 +1,19 @@
-import { useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import useSWR from "swr";
 import { TrainingProblem } from "@/types/TrainingProblem";
-import { SuccessResponse, ErrorResponse } from "@/types/Response";
-import useUser from "@/hooks/useUser";
-import useProblems from "@/hooks/useProblems";
+import useUser from "./useUser";
+import useProblems from "./useProblems";
 
-const UPSOLVED_PROBLEMS_CACHE_KEY = "training-tracker-upsolved-problems";
+const UPSOLVED_PROBLEMS_CACHE_KEY = "upsolved-problems";
 
-const getStoredUpsolvedProblems = () => {
-  try {
-    const stored = localStorage.getItem(UPSOLVED_PROBLEMS_CACHE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
+const getStoredUpsolvedProblems = (): TrainingProblem[] => {
+  if (typeof window === "undefined") return [];
+  const stored = localStorage.getItem(UPSOLVED_PROBLEMS_CACHE_KEY);
+  return stored ? JSON.parse(stored) : [];
 };
 
 const useUpsolvedProblems = () => {
+  const [isClient, setIsClient] = useState(false);
   const { user } = useUser();
   const {
     isLoading: isProblemsLoading,
@@ -24,9 +21,13 @@ const useUpsolvedProblems = () => {
     solvedProblems,
   } = useProblems(user);
   const { data, isLoading, error, mutate } = useSWR<TrainingProblem[]>(
-    UPSOLVED_PROBLEMS_CACHE_KEY,
+    isClient ? UPSOLVED_PROBLEMS_CACHE_KEY : null,
     getStoredUpsolvedProblems
   );
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // make sure the data is an array
   const upsolvedProblems = useMemo(() => data ?? [], [data]);
@@ -42,7 +43,7 @@ const useUpsolvedProblems = () => {
       if (solvedProblem && !problem.solvedTime) {
         return {
           ...problem,
-          solvedTime: new Date().getTime(),
+          solvedTime: Date.now(),
         };
       }
       return problem;
@@ -62,61 +63,36 @@ const useUpsolvedProblems = () => {
   }, [solvedProblems, refreshUpsolvedProblems]);
 
   useEffect(() => {
-    if (upsolvedProblems) {
+    if (isClient && upsolvedProblems) {
       localStorage.setItem(
         UPSOLVED_PROBLEMS_CACHE_KEY,
         JSON.stringify(upsolvedProblems)
       );
     }
-  }, [upsolvedProblems]);
+  }, [upsolvedProblems, isClient]);
 
-  const addUpsolvedProblems = async (problems: TrainingProblem[]) => {
-    try {
-      // Filter out problems that are already in the list
-      const newProblems = problems.filter(
-        (problem) =>
-          !upsolvedProblems?.some(
-            (p) =>
-              p.contestId === problem.contestId && p.index === problem.index
-          )
-      );
-
-      if (newProblems.length === 0) {
-        return SuccessResponse(upsolvedProblems);
-      }
-
-      const newUpsolvedProblems = [...(upsolvedProblems ?? []), ...newProblems];
-      await mutate(newUpsolvedProblems, { revalidate: false });
-      return SuccessResponse(newUpsolvedProblems);
-    } catch (error) {
-      return ErrorResponse(error as string);
-    }
+  const addUpsolvedProblems = (problems: TrainingProblem[]) => {
+    const newUpsolvedProblems = [...upsolvedProblems, ...problems];
+    mutate(newUpsolvedProblems, { revalidate: false });
   };
 
-  const deleteUpsolvedProblem = async (problem: TrainingProblem) => {
-    try {
-      const newUpsolvedProblems = upsolvedProblems?.filter(
-        (p) => p.contestId !== problem.contestId && p.index !== problem.index
-      );
-      await mutate(newUpsolvedProblems, { revalidate: false });
-      return SuccessResponse(newUpsolvedProblems);
-    } catch (error) {
-      return ErrorResponse(error as string);
-    }
+  const deleteUpsolvedProblem = (problem: TrainingProblem) => {
+    const newUpsolvedProblems = upsolvedProblems.filter(
+      (p) => p.contestId !== problem.contestId || p.index !== problem.index
+    );
+    mutate(newUpsolvedProblems, { revalidate: false });
   };
 
-  const onRefreshUpsolvedProblems = async () => {
-    await refreshSolvedProblems();
-    await refreshUpsolvedProblems();
+  const onRefreshUpsolvedProblems = () => {
+    refreshSolvedProblems();
   };
 
   return {
     upsolvedProblems,
-    isLoading: isProblemsLoading || isLoading,
+    isLoading: isLoading || isProblemsLoading || !isClient,
     error,
-    addUpsolvedProblems,
     deleteUpsolvedProblem,
-    refreshUpsolvedProblems,
+    addUpsolvedProblems,
     onRefreshUpsolvedProblems,
   };
 };

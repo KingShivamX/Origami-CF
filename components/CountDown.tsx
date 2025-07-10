@@ -10,8 +10,15 @@ const CountDown = ({
 }) => {
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [isStarted, setIsStarted] = useState<boolean>(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     const calculateTimeLeft = () => {
       const now = Date.now();
       if (now < startTime) {
@@ -38,7 +45,17 @@ const CountDown = ({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [startTime, endTime]);
+  }, [startTime, endTime, mounted]);
+
+  if (!mounted) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="text-2xl font-bold text-center">Loading...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const hours = Math.floor(timeLeft / (1000 * 60 * 60));
   const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));

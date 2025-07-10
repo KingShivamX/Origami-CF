@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { User } from "@/types/User";
 import { SuccessResponse, ErrorResponse, Response } from "@/types/Response";
@@ -6,6 +6,7 @@ import { SuccessResponse, ErrorResponse, Response } from "@/types/Response";
 const USER_CACHE_KEY = "codeforces-user";
 
 const useUser = () => {
+  const [isClient, setIsClient] = useState(false);
   const {
     data: user,
     isLoading,
@@ -21,13 +22,19 @@ const useUser = () => {
   );
 
   useEffect(() => {
-    // Attempt to load user from session storage on initial load
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    // Only attempt to load user from session storage after client hydration
+    if (!isClient) return;
+
     const token = sessionStorage.getItem("token");
     const storedUser = sessionStorage.getItem("user");
     if (token && storedUser) {
       mutate(JSON.parse(storedUser), false);
     }
-  }, [mutate]);
+  }, [mutate, isClient]);
 
   const register = async (
     codeforcesHandle: string,
@@ -45,8 +52,10 @@ const useUser = () => {
       }
 
       // Save token and user to session storage
-      sessionStorage.setItem("token", data.token);
-      sessionStorage.setItem("user", JSON.stringify(data.user));
+      if (isClient) {
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("user", JSON.stringify(data.user));
+      }
 
       await mutate(data.user, false);
       return SuccessResponse(data.user);
@@ -71,8 +80,10 @@ const useUser = () => {
       }
 
       // Save token and user to session storage
-      sessionStorage.setItem("token", data.token);
-      sessionStorage.setItem("user", JSON.stringify(data.user));
+      if (isClient) {
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("user", JSON.stringify(data.user));
+      }
 
       await mutate(data.user, false);
       return SuccessResponse(data.user);
@@ -82,14 +93,16 @@ const useUser = () => {
   };
 
   const logout = () => {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("user");
+    if (isClient) {
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user");
+    }
     mutate(null, false);
   };
 
   return {
     user,
-    isLoading,
+    isLoading: isLoading || !isClient,
     error,
     register,
     login,

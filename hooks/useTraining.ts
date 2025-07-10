@@ -22,11 +22,16 @@ const useTraining = () => {
   const { addTraining } = useHistory();
   const { addUpsolvedProblems } = useUpsolvedProblems();
 
+  const [isClient, setIsClient] = useState(false);
   const [problems, setProblems] = useState<TrainingProblem[]>([]);
   const [training, setTraining] = useState<Training | null>(null);
   const [isTraining, setIsTraining] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const updateProblemStatus = useCallback(() => {
     if (!training || !solvedProblems) {
@@ -40,7 +45,7 @@ const useTraining = () => {
     const updatedProblems = training.problems.map((problem) => ({
       ...problem,
       solvedTime: solvedProblemIds.has(`${problem.contestId}_${problem.index}`)
-        ? (problem.solvedTime ?? new Date().getTime())
+        ? (problem.solvedTime ?? Date.now())
         : problem.solvedTime,
     }));
 
@@ -69,7 +74,9 @@ const useTraining = () => {
     // Clear all training-related states immediately
     setProblems([]);
     setTraining(null);
-    localStorage.removeItem(TRAINING_STORAGE_KEY);
+    if (isClient) {
+      localStorage.removeItem(TRAINING_STORAGE_KEY);
+    }
 
     // Only proceed with history update if there was an active training
     if (!currentTraining) {
@@ -89,7 +96,7 @@ const useTraining = () => {
     const updatedProblems = currentTraining.problems.map((problem) => ({
       ...problem,
       solvedTime: solvedProblemIds.has(`${problem.contestId}_${problem.index}`)
-        ? (problem.solvedTime ?? new Date().getTime())
+        ? (problem.solvedTime ?? Date.now())
         : problem.solvedTime,
     }));
 
@@ -106,6 +113,7 @@ const useTraining = () => {
     router,
     refreshSolvedProblems,
     addUpsolvedProblems,
+    isClient,
   ]);
 
   // Redirect if no user
@@ -115,17 +123,21 @@ const useTraining = () => {
     }
   }, [user, isUserLoading, router]);
 
-  // Load training from localStorage
+  // Load training from localStorage (only on client)
   useEffect(() => {
+    if (!isClient) return;
+
     const localTraining = localStorage.getItem(TRAINING_STORAGE_KEY);
     if (localTraining) {
       const parsed = JSON.parse(localTraining);
       setTraining(parsed);
     }
-  }, []);
+  }, [isClient]);
 
   // Update training in localStorage
   useEffect(() => {
+    if (!isClient) return;
+
     if (!training) {
       // Ensure cleanup when training becomes null
       if (timerRef.current) {
@@ -136,7 +148,7 @@ const useTraining = () => {
     }
 
     localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(training));
-    const now = new Date().getTime();
+    const now = Date.now();
     const timeLeft = training.endTime - now;
 
     // If training has expired, finish it
@@ -159,7 +171,7 @@ const useTraining = () => {
         timerRef.current = undefined;
       }
     };
-  }, [training, finishTraining]);
+  }, [training, finishTraining, isClient]);
 
   // if all problems are solved, finish training
   useEffect(() => {
@@ -187,7 +199,7 @@ const useTraining = () => {
     }
 
     // Will start in 10 seconds
-    const startTime = new Date().getTime() + 10000;
+    const startTime = Date.now() + 10000;
     const endTime = startTime + contestTime * 60000;
 
     setTraining({
@@ -203,7 +215,9 @@ const useTraining = () => {
   const stopTraining = () => {
     setIsTraining(false);
     setTraining(null);
-    localStorage.removeItem(TRAINING_STORAGE_KEY);
+    if (isClient) {
+      localStorage.removeItem(TRAINING_STORAGE_KEY);
+    }
   };
 
   const generateProblems = (
@@ -220,7 +234,7 @@ const useTraining = () => {
 
   return {
     problems,
-    isLoading: isUserLoading || isProblemsLoading,
+    isLoading: isUserLoading || isProblemsLoading || !isClient,
     training,
     isTraining,
     generateProblems,

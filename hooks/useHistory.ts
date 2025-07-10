@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import useSWR from "swr";
 import { Training } from "@/types/Training";
 import getPerformance from "@/utils/getPerformance";
@@ -10,7 +10,13 @@ interface FetchError extends Error {
 }
 
 const fetcher = async (url: string) => {
+  if (typeof window === "undefined") return [];
+
   const token = sessionStorage.getItem("token");
+  if (!token) {
+    throw new Error("No token found");
+  }
+
   const res = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -18,26 +24,27 @@ const fetcher = async (url: string) => {
   });
 
   if (!res.ok) {
-    const error: FetchError = new Error(
-      "An error occurred while fetching the data."
-    );
-    // Attach extra info to the error object.
-    error.info = await res.json();
-    error.status = res.status;
-    throw error;
+    throw new Error("Failed to fetch trainings");
   }
 
   return res.json();
 };
 
 const useHistory = () => {
+  const [isClient, setIsClient] = useState(false);
   const {
     data: history,
     error,
     mutate,
-  } = useSWR<Training[]>("/api/trainings", fetcher);
+  } = useSWR<Training[]>(isClient ? "/api/trainings" : null, fetcher);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const addTraining = async (training: Training) => {
+    if (!isClient) return;
+
     const performance = getPerformance(training);
     const newTraining = { ...training, performance };
 
@@ -75,7 +82,7 @@ const useHistory = () => {
 
   return {
     history: history || [],
-    isLoading: !error && !history,
+    isLoading: (!error && !history) || !isClient,
     error,
     addTraining,
     deleteTraining,

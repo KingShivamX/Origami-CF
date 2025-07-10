@@ -45,6 +45,7 @@ export default function RootLayout({
           montserrat.variable,
           monda.variable
         )}
+        suppressHydrationWarning
       >
         <ThemeProvider
           attribute="class"
