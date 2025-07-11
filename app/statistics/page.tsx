@@ -34,7 +34,12 @@ export default function StatisticsPage() {
       {history && history.length > 0 ? (
         <div className="space-y-8">
           <ProgressChart history={history} />
-          <History history={history} deleteTraining={deleteTraining} />
+          <History
+            history={history}
+            deleteTraining={(training: any) =>
+              deleteTraining(training._id.toString())
+            }
+          />
         </div>
       ) : (
         <div className="text-center py-16 text-lg text-muted-foreground">

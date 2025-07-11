@@ -19,24 +19,30 @@ const Home = () => {
   }
 
   return (
-    <section className="container grid items-center gap-6 pb-6 pt-2 md:py-4">
-      <div className="flex max-w-[980px] flex-col items-start gap-1">
-        <h1 className="text-3xl font-bold leading-tight tracking-tight">
+    <div className="min-h-[calc(100vh-200px)] flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+      {/* Hero Section */}
+      <div className="w-full max-w-4xl mx-auto text-center mb-8 sm:mb-12">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight mb-4 sm:mb-6">
           A Better Way to Practice for Codeforces
         </h1>
-        <p className="max-w-[700px] text-sm text-muted-foreground">
+        <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           Create custom virtual contests, track your progress, and focus on
           specific topics to improve your skills.
         </p>
       </div>
-      <div className="flex justify-center py-4">
-        <Card className="w-full max-w-lg border-2 border-border/50 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+
+      {/* Auth Card Section */}
+      <div className="w-full max-w-md mx-auto">
+        <Card className="border-2 border-border/50 shadow-xl hover:shadow-2xl transition-shadow duration-300">
           <CardContent className="pt-6 flex justify-center">
             {user ? <Profile user={user} logout={logout} /> : <Settings />}
           </CardContent>
         </Card>
       </div>
-    </section>
+
+      {/* Optional spacing for very large screens */}
+      <div className="flex-1 min-h-8"></div>
+    </div>
   );
 };
 
