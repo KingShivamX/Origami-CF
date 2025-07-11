@@ -13,6 +13,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 
@@ -29,12 +30,14 @@ const NavBar = () => {
   const { user } = useUser();
 
   return (
-    <header className="sticky top-0 z-50 w-screen border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="flex h-14 w-full px-6 items-center justify-between">
         {/* Left side - Navigation */}
         <div className="flex items-center">
-          <Link href="/" className="mr-8 flex items-center space-x-2">
-            <span className="font-bold text-lg">Origami-CF</span>
+          <Link href="/" className="mr-8 flex items-center space-x-2 group">
+            <span className="font-bold text-lg bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent group-hover:from-primary/80 group-hover:to-primary transition-all duration-200">
+              Origami-CF
+            </span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm">
             {links.map((link) => (
@@ -58,10 +61,10 @@ const NavBar = () => {
           {/* User Profile */}
           <ClientOnly>
             {user && (
-              <div className="hidden md:flex items-center gap-3">
-                <Avatar className="w-8 h-8 border-2 border-primary/20">
+              <div className="hidden md:flex items-center gap-3 hover:bg-muted/50 rounded-lg px-3 py-2 transition-colors duration-200">
+                <Avatar className="w-8 h-8 border-2 border-primary/30 shadow-sm">
                   <AvatarImage src={user.avatar} alt={user.codeforcesHandle} />
-                  <AvatarFallback className="text-xs">
+                  <AvatarFallback className="text-xs bg-gradient-to-br from-primary/10 to-primary/20">
                     {user.codeforcesHandle.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -88,13 +91,15 @@ const NavBar = () => {
               </SheetTrigger>
               <SheetContent side="left">
                 <SheetHeader>
-                  <Link
-                    href="/"
-                    className="flex items-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <span className="font-bold">Origami-CF</span>
-                  </Link>
+                  <SheetTitle>
+                    <Link
+                      href="/"
+                      className="flex items-center"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <span className="font-bold">Origami-CF</span>
+                    </Link>
+                  </SheetTitle>
                 </SheetHeader>
                 <div className="grid gap-4 py-4">
                   {links.map((link) => (
@@ -117,7 +122,10 @@ const NavBar = () => {
                   <div className="border-t pt-4 mt-4">
                     <div className="flex items-center gap-3">
                       <Avatar className="w-10 h-10 border-2 border-primary/20">
-                        <AvatarImage src={user.avatar} alt={user.codeforcesHandle} />
+                        <AvatarImage
+                          src={user.avatar}
+                          alt={user.codeforcesHandle}
+                        />
                         <AvatarFallback>
                           {user.codeforcesHandle.charAt(0).toUpperCase()}
                         </AvatarFallback>

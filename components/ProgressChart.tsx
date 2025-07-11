@@ -15,15 +15,18 @@ const ProgressChart = ({ history }: { history: Training[] }) => {
     return new Date(timestamp).toLocaleDateString();
   };
 
+  // Sort data chronologically (oldest to newest) for proper left-to-right display
+  const chartData = [...history].sort((a, b) => a.startTime - b.startTime);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Progress Chart</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={250} className="md:h-[300px]">
           <LineChart
-            data={history}
+            data={chartData}
             margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />

@@ -52,11 +52,11 @@ export default function RootLayout({
           defaultTheme="light"
           disableTransitionOnChange
         >
-          <div className="relative flex min-h-screen flex-col bg-background">
+          <div className="relative flex min-h-screen flex-col bg-background overflow-x-hidden">
             <NavBar />
             <main className="flex-1">
               <div className="container px-10 md:px-20 lg:px-48 py-8">
-              <AuthGuard>{children}</AuthGuard>
+                <AuthGuard>{children}</AuthGuard>
               </div>
             </main>
           </div>

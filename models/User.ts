@@ -9,6 +9,7 @@ export interface IUser extends Document {
   maxRating: number;
   maxRank: string;
   organization: string;
+  lastSyncTime: number;
 }
 
 const UserSchema: Schema = new Schema({
@@ -20,6 +21,7 @@ const UserSchema: Schema = new Schema({
   maxRating: { type: Number, default: 0 },
   maxRank: { type: String, default: "Unrated" },
   organization: { type: String },
+  lastSyncTime: { type: Number, default: 0 },
 });
 
 export default models.User || model<IUser>("User", UserSchema);

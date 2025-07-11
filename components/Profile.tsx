@@ -62,9 +62,11 @@ const Profile = ({ user, logout }: { user: User; logout: () => void }) => {
     <div className="w-full">
       <CardHeader className="text-center">
         <div className="flex justify-center">
-          <Avatar className="w-24 h-24 mb-4 border-2 border-primary">
+          <Avatar className="w-24 h-24 mb-4 border-4 border-primary/20 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <AvatarImage src={user.avatar} alt={user.codeforcesHandle} />
-            <AvatarFallback>{user.codeforcesHandle.charAt(0)}</AvatarFallback>
+            <AvatarFallback className="bg-gradient-to-br from-primary/10 to-primary/20 text-lg font-semibold">
+              {user.codeforcesHandle.charAt(0)}
+            </AvatarFallback>
           </Avatar>
         </div>
         <CardTitle className="text-2xl">{user.codeforcesHandle}</CardTitle>
@@ -75,15 +77,17 @@ const Profile = ({ user, logout }: { user: User; logout: () => void }) => {
 
       <CardContent>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center mb-6">
-          <div>
-            <p className="text-sm text-muted-foreground">Rating</p>
-            <p className="text-lg font-semibold">
+          <div className="bg-gradient-to-br from-muted/30 to-muted/50 rounded-lg p-4 border border-border/50">
+            <p className="text-sm text-muted-foreground font-medium">Rating</p>
+            <p className="text-lg font-bold text-primary">
               {user.rating || 0} ({user.rank || "Unrated"})
             </p>
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Max Rating</p>
-            <p className="text-lg font-semibold">
+          <div className="bg-gradient-to-br from-muted/30 to-muted/50 rounded-lg p-4 border border-border/50">
+            <p className="text-sm text-muted-foreground font-medium">
+              Max Rating
+            </p>
+            <p className="text-lg font-bold text-primary">
               {user.maxRating || 0} ({user.maxRank || "Unrated"})
             </p>
           </div>
@@ -196,10 +200,16 @@ const Profile = ({ user, logout }: { user: User; logout: () => void }) => {
             }}
             variant="secondary"
             size="sm"
+            className="bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/80 hover:to-secondary shadow-md hover:shadow-lg transition-all duration-200"
           >
             Reset PIN
           </Button>
-          <Button onClick={logout} variant="destructive" size="sm">
+          <Button
+            onClick={logout}
+            variant="destructive"
+            size="sm"
+            className="bg-gradient-to-r from-destructive to-destructive/90 hover:from-destructive/90 hover:to-destructive shadow-md hover:shadow-lg transition-all duration-200"
+          >
             Logout
           </Button>
         </CardFooter>

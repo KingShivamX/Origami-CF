@@ -7,4 +7,5 @@ export interface User {
   maxRating: number;
   maxRank: string;
   organization?: string;
+  lastSyncTime?: number;
 }

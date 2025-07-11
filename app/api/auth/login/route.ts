@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
+import { syncUserProfile, shouldSyncProfile } from "@/utils/syncUserProfile";
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,21 +40,42 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, {
+    // Check if profile sync is needed and update if necessary
+    let updatedUser = user;
+    if (shouldSyncProfile(user.lastSyncTime)) {
+      const syncData = await syncUserProfile(user.codeforcesHandle);
+      if (syncData) {
+        updatedUser = await User.findByIdAndUpdate(
+          user._id,
+          {
+            rating: syncData.rating,
+            rank: syncData.rank,
+            maxRating: syncData.maxRating,
+            maxRank: syncData.maxRank,
+            organization: syncData.organization,
+            lastSyncTime: syncData.lastSyncTime,
+          },
+          { new: true }
+        );
+      }
+    }
+
+    const token = jwt.sign({ userId: updatedUser._id }, process.env.JWT_SECRET!, {
       expiresIn: "7d",
     });
 
     return NextResponse.json({
       token,
       user: {
-        _id: user._id,
-        codeforcesHandle: user.codeforcesHandle,
-        rating: user.rating,
-        avatar: user.avatar,
-        rank: user.rank,
-        maxRating: user.maxRating,
-        maxRank: user.maxRank,
-        organization: user.organization,
+        _id: updatedUser._id,
+        codeforcesHandle: updatedUser.codeforcesHandle,
+        rating: updatedUser.rating,
+        avatar: updatedUser.avatar,
+        rank: updatedUser.rank,
+        maxRating: updatedUser.maxRating,
+        maxRank: updatedUser.maxRank,
+        organization: updatedUser.organization,
+        lastSyncTime: updatedUser.lastSyncTime,
       },
     });
   } catch (error) {

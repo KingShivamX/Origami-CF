@@ -29,12 +29,16 @@ const ProblemLink = ({
 
   return (
     <Link
-      className="text-primary hover:underline"
+      className="text-primary hover:underline inline-block min-w-[120px] text-center p-2 rounded-lg border border-border/30 bg-muted/20 hover:bg-muted/40 transition-colors"
       href={problem.url}
       target="_blank"
     >
-      {getSolvedStatus()}
-      {problem.contestId}-{problem.index}
+      <div className="flex flex-col items-center gap-1">
+        <span className="text-sm opacity-75">{getSolvedStatus()}</span>
+        <span className="font-semibold">
+          {problem.contestId}-{problem.index}
+        </span>
+      </div>
     </Link>
   );
 };
@@ -89,15 +93,15 @@ const Trainer = ({
   };
 
   return (
-    <Card>
-      <CardContent className="pt-6 space-y-4">
-        <div className="flex flex-wrap justify-between gap-4">
+    <Card className="border-2 border-border/50 shadow-lg">
+      <CardContent className="pt-8 space-y-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xl font-semibold">
           {(isTraining && training?.problems
             ? training.problems
             : problems
-          )?.map((problem) => (
+          )?.map((problem, index) => (
             <ProblemLink
-              key={`${problem.contestId}-${problem.index}`}
+              key={`${problem.contestId}-${problem.index}-${index}`}
               problem={problem}
               isTraining={isTraining}
               startTime={training?.startTime ?? null}
@@ -126,24 +130,39 @@ const Trainer = ({
           ) : (
             training && (
               <>
-                <div className="flex items-center gap-4">
-                  <CountDown
-                    startTime={training.startTime}
-                    endTime={training.endTime}
-                  />
+                                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full py-6 gap-4">
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="lg"
                     onClick={refreshProblemStatus}
+                    className="text-lg font-semibold px-6 py-3 lg:order-1"
                   >
-                    <RefreshCw className="h-4 w-4" />
+                    <RefreshCw className="h-5 w-5 mr-3" />
+                    Refresh
                   </Button>
-                </div>
-                <div className="flex gap-4">
-                  <Button onClick={onFinishTraining}>Finish</Button>
-                  <Button variant="destructive" onClick={onStopTraining}>
-                    Stop
-                  </Button>
+                  <div className="text-center lg:order-2">
+                    <CountDown
+                      startTime={training.startTime}
+                      endTime={training.endTime}
+                    />
+                  </div>
+                  <div className="flex gap-3 justify-center lg:justify-end lg:order-3">
+                    <Button 
+                      onClick={onFinishTraining} 
+                      size="lg"
+                      className="text-lg font-semibold px-6 py-3 flex-1 sm:flex-none"
+                    >
+                      Finish
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={onStopTraining}
+                      size="lg"
+                      className="text-lg font-semibold px-6 py-3 flex-1 sm:flex-none"
+                    >
+                      Stop
+                    </Button>
+                  </div>
                 </div>
               </>
             )

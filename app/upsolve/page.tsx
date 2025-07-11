@@ -32,7 +32,7 @@ export default function UpsolvePage() {
 
   return (
     <section className="container grid items-center gap-6 pb-6 pt-2 md:py-4">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-bold leading-tight tracking-tight">
             Upsolving List
@@ -42,7 +42,11 @@ export default function UpsolvePage() {
             sessions.
           </p>
         </div>
-        <Button variant="outline" onClick={onRefreshUpsolvedProblems}>
+        <Button 
+          variant="outline" 
+          onClick={onRefreshUpsolvedProblems}
+          className="self-start sm:self-auto"
+        >
           Refresh Status
         </Button>
       </div>

@@ -29,8 +29,8 @@ const Home = () => {
           specific topics to improve your skills.
         </p>
       </div>
-      <div className="flex justify-center py-4">
-        <Card className="w-full max-w-lg">
+            <div className="flex justify-center py-4">
+      <Card className="w-full max-w-lg border-2 border-border/50 shadow-xl hover:shadow-2xl transition-shadow duration-300">
           <CardContent className="pt-6 flex justify-center">
             {user ? <Profile user={user} logout={logout} /> : <Settings />}
           </CardContent>

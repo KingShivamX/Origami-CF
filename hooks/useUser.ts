@@ -119,6 +119,37 @@ const useUser = () => {
     }
   };
 
+  const syncProfile = useCallback(async (): Promise<Response<User>> => {
+    try {
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        return ErrorResponse("Not authenticated");
+      }
+
+      const res = await fetch("/api/auth/sync-profile", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        return ErrorResponse(data.message);
+      }
+
+      // Update session storage with new user data
+      if (isClient && data.user) {
+        sessionStorage.setItem("user", JSON.stringify(data.user));
+        await mutate(data.user, false);
+      }
+
+      return SuccessResponse(data.user);
+    } catch (error) {
+      return ErrorResponse("Failed to sync profile");
+    }
+  }, [isClient, mutate]);
+
   return {
     user,
     isLoading: isLoading || !isClient,
@@ -127,6 +158,7 @@ const useUser = () => {
     login,
     logout,
     resetPin,
+    syncProfile,
   };
 };
 

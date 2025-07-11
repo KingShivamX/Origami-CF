@@ -60,8 +60,11 @@ export async function POST(req: NextRequest) {
       avatar: cfUser.avatar,
       rank: rank,
       maxRating: cfUser.maxRating ?? 0,
-      maxRank: cfUser.maxRank ?? (cfUser.maxRating ? getRankFromRating(cfUser.maxRating) : "Unrated"),
+      maxRank:
+        cfUser.maxRank ??
+        (cfUser.maxRating ? getRankFromRating(cfUser.maxRating) : "Unrated"),
       organization: cfUser.organization,
+      lastSyncTime: Date.now(),
     });
 
     await newUser.save();

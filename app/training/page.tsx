@@ -94,7 +94,7 @@ export default function TrainingPage() {
       </div>
 
       <div className="space-y-8">
-        <Card>
+        <Card className="border-2 border-border/50 shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardContent className="pt-6 space-y-8">
             {/* Tags Section */}
             <div className="space-y-4">
@@ -110,7 +110,7 @@ export default function TrainingPage() {
             {/* Problem Ratings Section */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold">Set Problem Ratings</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {Object.entries(customRatings).map(([problem, rating]) => {
                   const isInvalid = rating !== 0 && !isValidRating(rating);
                   return (
