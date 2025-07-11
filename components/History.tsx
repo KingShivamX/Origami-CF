@@ -123,7 +123,8 @@ const History = ({
                     {new Date(training.startTime).toLocaleDateString()}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Avg Rating: {calculateAverageRating(training)} • Performance: {training.performance}
+                    Avg Rating: {calculateAverageRating(training)} •
+                    Performance: {training.performance}
                   </p>
                 </div>
                 <Button

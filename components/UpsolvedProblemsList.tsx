@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 const UpsolvedProblemsList = ({
   upsolvedProblems,
@@ -65,7 +65,10 @@ const UpsolvedProblemsList = ({
       {/* Mobile Card View */}
       <div className="md:hidden space-y-3">
         {upsolvedProblems.map((problem) => (
-          <Card key={problem.contestId + problem.index} className="border-2 border-border/50">
+          <Card
+            key={problem.contestId + problem.index}
+            className="border-2 border-border/50"
+          >
             <CardContent className="pt-4">
               <div className="flex justify-between items-start gap-3">
                 <div className="flex-1 min-w-0">

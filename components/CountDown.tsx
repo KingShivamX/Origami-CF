@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 
 const CountDown = ({
   startTime,
@@ -68,7 +67,9 @@ const CountDown = ({
           isStarted ? (
             <span className="text-red-500 text-3xl">Training has ended</span>
           ) : (
-            <span className="text-green-500 text-3xl">Training will start soon</span>
+            <span className="text-green-500 text-3xl">
+              Training will start soon
+            </span>
           )
         ) : (
           <div className="space-y-2">

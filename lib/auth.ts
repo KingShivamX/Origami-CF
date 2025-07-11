@@ -10,7 +10,7 @@ export async function verifyAuth(token: string): Promise<UserPayload | null> {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as UserPayload;
     return decoded;
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }

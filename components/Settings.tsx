@@ -52,7 +52,7 @@ const Settings = () => {
         }
         // On successful login, the parent component will re-render and show the profile
       }
-    } catch (err) {
+    } catch (_err) {
       setError("Failed to connect to the server.");
     } finally {
       setIsLoading(false);

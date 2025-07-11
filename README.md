@@ -1,69 +1,61 @@
 # 🎯 Origami-CF
 
-A professional Codeforces virtual contest practice platform with custom problem selection, cloud data storage, and secure PIN authentication.
+A better way to practice competitive programming on Codeforces with custom virtual contests and progress tracking.
 
-## ✨ Key Features
+## What it does
 
-- **🔐 PIN Authentication**: 4-digit PIN login with unique forgot PIN recovery via compilation error
-- **🎮 Custom Contests**: Set individual problem ratings (P1-P4), filter by tags and contest rounds
-- **⏱️ Live Contest**: Real-time timer, status updates, and problem tracking
-- **📊 Progress Tracking**: Cloud-stored training history with performance analytics
-- **🔄 Smart Upsolving**: Auto-collect unsolved problems with cloud sync
-- **🎨 Modern UI**: Professional design with dark/light mode and responsive layout
+Tired of messy Codeforces practice sessions? This platform helps you create focused virtual contests, track your progress, and never lose sight of problems you need to solve.
 
-## 📱 How to Use
+## Key Features
 
-### Authentication
+**🔐 Simple Authentication** - Codeforces handle + 4-digit PIN
 
-- **Register**: Enter Codeforces handle + create 4-digit PIN
-- **Login**: Handle + PIN
-- **Forgot PIN**: Submit compilation error to [Problem 4A](https://codeforces.com/problemset/problem/4/A), then verify
+**🎮 Custom Contests** - Set problem ratings (P1-P4), filter by tags and contest rounds
+
+**⏱️ Live Contest Mode** - Real-time timer and status updates
+
+**📊 Progress Analytics** - Track performance across all training sessions
+
+**🔄 Smart Upsolving** - Auto-collect unsolved problems for later practice
+
+**🎨 Clean Interface** - Modern UI with dark/light mode support
+
+## Quick Start
+
+### Setup
+
+1. Enter your Codeforces handle
+2. Create a 4-digit PIN
+3. Start practicing!
+
+### Forgot PIN?
+
+Submit a compilation error to [Problem 4A](https://codeforces.com/problemset/problem/4/A) for verification.
 
 ### Creating Contests
 
 1. Select tags (optional)
-2. Set problem ratings for P1-P4
-3. Set contest round range (optional)
-4. Generate → Start → Solve on Codeforces
-5. Use "Refresh" button to update status
+2. Set problem difficulties for each slot
+3. Generate and start solving
+4. Use refresh to update progress
 
-### Progress Tracking
+## Tech Stack
 
-- **Statistics**: View performance charts and training history
-- **Upsolve**: Auto-collected unsolved problems with status tracking
+Next.js 15, TypeScript, Tailwind CSS, MongoDB, JWT authentication, Codeforces API integration.
 
-## 🛡️ Security
+## Development
 
-- bcrypt PIN encryption
-- JWT session management
-- Unique compilation error verification for PIN reset
-- Cloud data storage with user isolation
+```bash
+git clone https://github.com/yourusername/origami-cf.git
+cd origami-cf
+npm install
+npm run dev
+```
 
-## 🔧 Tech Stack
+## Credits
 
-- **Frontend**: Next.js 15, TypeScript, Tailwind CSS, Shadcn/UI
-- **Backend**: Next.js API Routes, MongoDB, JWT
-- **External**: Codeforces API integration
-
-## 🚀 Quick Start
-
-1. **Setup**
-
-   ```bash
-   git clone https://github.com/yourusername/origami-cf.git
-   cd origami-cf
-   npm install
-   ```
-
-2. **Run**
-   ```bash
-   npm run dev
-   ```
-
-## 🙏 Acknowledgments
-
-This project is inspired by the work of [C0ldSmi1e](https://github.com/C0ldSmi1e/training-tracker) and ThemeCP.
+Inspired by [C0ldSmi1e](https://github.com/C0ldSmi1e/training-tracker) and ThemeCP.
 
 ---
 
-**Made with <3 for competitive programmers**
+Made for competitive programmers who want organized practice sessions.

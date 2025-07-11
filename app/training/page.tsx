@@ -4,7 +4,7 @@ import { Plus, Minus } from "lucide-react";
 import useTraining from "@/hooks/useTraining";
 import Trainer from "@/components/Trainer";
 import useBounds from "@/hooks/useBounds";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textboxpair } from "@/components/ui/textboxpair";

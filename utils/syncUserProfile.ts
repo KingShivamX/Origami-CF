@@ -26,13 +26,23 @@ export async function syncUserProfile(
 
     const cfUser = cfUserResponse.data;
 
+    // Handle rating and rank for current stats
+    const currentRating = cfUser.rating ?? 0;
+    const currentRank =
+      cfUser.rank ??
+      (currentRating === 0 ? "Unrated" : getRankFromRating(currentRating));
+
+    // Handle rating and rank for max stats
+    const maxRating = cfUser.maxRating ?? 0;
+    const maxRank =
+      cfUser.maxRank ??
+      (maxRating === 0 ? "Unrated" : getRankFromRating(maxRating));
+
     return {
-      rating: cfUser.rating ?? 0,
-      rank: cfUser.rank ?? getRankFromRating(cfUser.rating ?? 0),
-      maxRating: cfUser.maxRating ?? 0,
-      maxRank:
-        cfUser.maxRank ??
-        (cfUser.maxRating ? getRankFromRating(cfUser.maxRating) : "Unrated"),
+      rating: currentRating,
+      rank: currentRank,
+      maxRating: maxRating,
+      maxRank: maxRank,
       organization: cfUser.organization,
       lastSyncTime: Date.now(),
     };

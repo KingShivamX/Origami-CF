@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/input-otp";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardFooter,
@@ -21,12 +20,13 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 const Profile = ({ user, logout }: { user: User; logout: () => void }) => {
-  const { resetPin } = useUser();
+  const { resetPin, syncProfile } = useUser();
   const [showReset, setShowReset] = useState(false);
   const [oldPin, setOldPin] = useState("");
   const [newPin, setNewPin] = useState("");
   const [confirmNewPin, setConfirmNewPin] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -56,6 +56,24 @@ const Profile = ({ user, logout }: { user: User; logout: () => void }) => {
       setError(response.error);
     }
     setIsLoading(false);
+  };
+
+  const handleSyncProfile = async () => {
+    setIsSyncing(true);
+    setError(null);
+    setSuccess(null);
+
+    const response = await syncProfile();
+    if (response.success) {
+      setSuccess("Profile synced successfully!");
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
+    } else {
+      setError(response.error);
+      // Clear error message after 5 seconds
+      setTimeout(() => setError(null), 5000);
+    }
+    setIsSyncing(false);
   };
 
   return (
@@ -205,6 +223,15 @@ const Profile = ({ user, logout }: { user: User; logout: () => void }) => {
             Reset PIN
           </Button>
           <Button
+            onClick={handleSyncProfile}
+            variant="outline"
+            size="sm"
+            disabled={isSyncing}
+            className="bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 shadow-md hover:shadow-lg transition-all duration-200"
+          >
+            {isSyncing ? "Syncing..." : "Sync Profile"}
+          </Button>
+          <Button
             onClick={logout}
             variant="destructive"
             size="sm"
@@ -213,6 +240,16 @@ const Profile = ({ user, logout }: { user: User; logout: () => void }) => {
             Logout
           </Button>
         </CardFooter>
+      )}
+
+      {/* Status messages for sync operations */}
+      {!showReset && (error || success) && (
+        <div className="px-6 pb-4">
+          {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+          {success && (
+            <p className="text-sm text-green-500 text-center">{success}</p>
+          )}
+        </div>
       )}
     </div>
   );

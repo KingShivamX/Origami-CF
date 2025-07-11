@@ -42,8 +42,8 @@ export default function UpsolvePage() {
             sessions.
           </p>
         </div>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={onRefreshUpsolvedProblems}
           className="self-start sm:self-auto"
         >

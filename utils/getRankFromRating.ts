@@ -1,4 +1,5 @@
 const getRankFromRating = (rating: number): string => {
+  if (rating === 0) return "Unrated";
   if (rating < 1200) return "Newbie";
   if (rating < 1400) return "Pupil";
   if (rating < 1600) return "Specialist";

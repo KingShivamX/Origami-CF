@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/mongodb";
-import getSubmissions from "@/utils/codeforces/getSubmissions";
 
 interface DecodedToken {
   userId: string;

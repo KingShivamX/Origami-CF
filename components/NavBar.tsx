@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ModeToggle from "@/components/ModeToggle";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import ClientOnly from "@/components/ClientOnly";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useUser from "@/hooks/useUser";

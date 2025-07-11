@@ -1,4 +1,4 @@
-import { Training } from "./TrainingProblem";
+import { TrainingProblem } from "./TrainingProblem";
 
 export interface Training {
   _id?: string;

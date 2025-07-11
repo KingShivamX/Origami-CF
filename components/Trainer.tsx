@@ -130,7 +130,7 @@ const Trainer = ({
           ) : (
             training && (
               <>
-                                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full py-6 gap-4">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full py-6 gap-4">
                   <Button
                     variant="outline"
                     size="lg"
@@ -147,8 +147,8 @@ const Trainer = ({
                     />
                   </div>
                   <div className="flex gap-3 justify-center lg:justify-end lg:order-3">
-                    <Button 
-                      onClick={onFinishTraining} 
+                    <Button
+                      onClick={onFinishTraining}
                       size="lg"
                       className="text-lg font-semibold px-6 py-3 flex-1 sm:flex-none"
                     >

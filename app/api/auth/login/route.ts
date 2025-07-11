@@ -60,9 +60,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const token = jwt.sign({ userId: updatedUser._id }, process.env.JWT_SECRET!, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign(
+      { userId: updatedUser._id },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     return NextResponse.json({
       token,
