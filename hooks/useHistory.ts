@@ -13,7 +13,7 @@ interface FetchError extends Error {
 const fetcher = async (url: string) => {
   if (typeof window === "undefined") return [];
 
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
   if (!token) {
     throw new Error("No token found");
   }
@@ -53,7 +53,7 @@ const useHistory = () => {
       const performance = getAccuratePerformance(training, userRating);
       const newTraining = { ...training, performance };
 
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
       try {
         await fetch("/api/trainings", {
@@ -75,13 +75,32 @@ const useHistory = () => {
 
   const deleteTraining = useCallback(
     async (trainingId: string) => {
-      // Note: The delete endpoint is not implemented in this pass
-      // For now, we just remove it from the local state
+      // Optimistic update
       mutate(
-        (currentHistory = []) =>
-          currentHistory.filter((t: any) => t._id !== trainingId),
+        (currentData = []) =>
+          currentData.filter((training) => training._id !== trainingId),
         false
       );
+
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`/api/trainings/${trainingId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete training");
+        }
+
+        // No need to call mutate again on success
+      } catch (error) {
+        console.error("Error deleting training:", error);
+        // Rollback on error
+        mutate();
+      }
     },
     [mutate]
   );

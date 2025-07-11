@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       { userId: updatedUser._id },
       process.env.JWT_SECRET!,
       {
-        expiresIn: "7d",
+        expiresIn: "14d",
       }
     );
 

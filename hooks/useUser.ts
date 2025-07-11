@@ -14,7 +14,7 @@ const useUser = () => {
     error,
   } = useSWR<User | null>(
     USER_CACHE_KEY,
-    null, // We will manage fetching manually or from session
+    null, // We will manage fetching manually or from localStorage
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -26,11 +26,11 @@ const useUser = () => {
   }, []);
 
   useEffect(() => {
-    // Only attempt to load user from session storage after client hydration
+    // Only attempt to load user from localStorage after client hydration
     if (!isClient) return;
 
-    const token = sessionStorage.getItem("token");
-    const storedUser = sessionStorage.getItem("user");
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
     if (token && storedUser) {
       mutate(JSON.parse(storedUser), false);
     }
@@ -70,10 +70,10 @@ const useUser = () => {
           return ErrorResponse(data.message);
         }
 
-        // Save token and user to session storage
+        // Save token and user to localStorage for persistent sessions
         if (isClient) {
-          sessionStorage.setItem("token", data.token);
-          sessionStorage.setItem("user", JSON.stringify(data.user));
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
         }
 
         await mutate(data.user, false);
@@ -87,8 +87,8 @@ const useUser = () => {
 
   const logout = () => {
     if (isClient) {
-      sessionStorage.removeItem("token");
-      sessionStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     }
     mutate(null, false);
   };
@@ -98,7 +98,7 @@ const useUser = () => {
     newPin: string
   ): Promise<Response<null>> => {
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const res = await fetch("/api/auth/reset-pin", {
         method: "POST",
         headers: {
@@ -121,7 +121,7 @@ const useUser = () => {
 
   const syncProfile = useCallback(async (): Promise<Response<User>> => {
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       if (!token) {
         return ErrorResponse("Not authenticated");
       }
@@ -138,9 +138,9 @@ const useUser = () => {
         return ErrorResponse(data.message);
       }
 
-      // Update session storage with new user data
+      // Update localStorage with new user data
       if (isClient && data.user) {
-        sessionStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("user", JSON.stringify(data.user));
         await mutate(data.user, false);
       }
 

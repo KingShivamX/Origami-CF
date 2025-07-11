@@ -7,10 +7,9 @@ import useProblems from "./useProblems";
 const fetcher = async (url: string) => {
   if (typeof window === "undefined") return [];
 
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
   if (!token) {
-    // Return empty array if not logged in, as upsolve list is user-specific
-    return [];
+    throw new Error("No token found");
   }
 
   const res = await fetch(url, {
@@ -73,7 +72,7 @@ const useUpsolvedProblems = () => {
       false
     );
 
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     try {
       await fetch("/api/upsolve", {
         method: "PUT",
@@ -104,7 +103,7 @@ const useUpsolvedProblems = () => {
       // Optimistic update
       mutate((currentData = []) => [...currentData, ...problems], false);
 
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       try {
         await fetch("/api/upsolve", {
           method: "POST",
@@ -138,7 +137,7 @@ const useUpsolvedProblems = () => {
         false
       );
 
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       try {
         await fetch("/api/upsolve", {
           method: "DELETE",
