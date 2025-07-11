@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 import { Training } from "@/types/Training";
-import getPerformance from "@/utils/getPerformance";
+import { getAccuratePerformance } from "@/utils/getPerformance";
+import useUser from "@/hooks/useUser";
 
 // Define a custom error type
 interface FetchError extends Error {
@@ -32,6 +33,7 @@ const fetcher = async (url: string) => {
 
 const useHistory = () => {
   const [isClient, setIsClient] = useState(false);
+  const { user } = useUser();
   const {
     data: history,
     error,
@@ -46,7 +48,9 @@ const useHistory = () => {
     async (training: Training) => {
       if (!isClient) return;
 
-      const performance = getPerformance(training);
+      // Use the user's current rating for accurate performance calculation
+      const userRating = user?.rating || 1500; // Default to 1500 if rating not available
+      const performance = getAccuratePerformance(training, userRating);
       const newTraining = { ...training, performance };
 
       const token = sessionStorage.getItem("token");
@@ -66,7 +70,7 @@ const useHistory = () => {
         console.error(error);
       }
     },
-    [isClient, mutate]
+    [isClient, mutate, user?.rating]
   );
 
   const deleteTraining = useCallback(
