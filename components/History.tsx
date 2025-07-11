@@ -48,30 +48,24 @@ const History = ({
   deleteTraining: (training: Training) => void;
 }) => {
   const onDelete = (training: Training) => {
-    if (confirm("Are you sure you want to delete this record?")) {
+    if (confirm("Are you sure you want to delete this training session?")) {
       deleteTraining(training);
     }
   };
 
-  if (history.length === 0) {
+  const calculateAverageRating = (training: Training) => {
+    const ratings = Object.values(training.customRatings);
+    const sum = ratings.reduce((acc, rating) => acc + rating, 0);
+    return Math.round(sum / ratings.length);
+  };
+
+  if (!history || history.length === 0) {
     return (
-      <div className="text-center text-muted-foreground py-8">
-        No training history yet. Complete some trainings to see your progress!
+      <div className="text-center py-4 text-muted-foreground">
+        No training history found.
       </div>
     );
   }
-
-  const calculateAverageRating = (training: Training) => {
-    const ratings = [
-      training.customRatings.P1,
-      training.customRatings.P2,
-      training.customRatings.P3,
-      training.customRatings.P4,
-    ];
-    return Math.round(
-      ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
-    );
-  };
 
   return (
     <div className="w-full overflow-x-auto">
@@ -80,7 +74,6 @@ const History = ({
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Avg Rating</TableHead>
-            <TableHead>Contest Time</TableHead>
             {history[0].problems.map((_, index) => (
               <TableHead key={index}>P{index + 1}</TableHead>
             ))}
@@ -95,7 +88,6 @@ const History = ({
                 {new Date(training.startTime).toLocaleDateString()}
               </TableCell>
               <TableCell>{calculateAverageRating(training)}</TableCell>
-              <TableCell>{training.contestTime}m</TableCell>
               {training.problems.map((p) => (
                 <TableCell key={p.contestId}>
                   <Problem problem={p} startTime={training.startTime} />

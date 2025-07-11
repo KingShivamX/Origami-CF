@@ -1,27 +1,25 @@
-import mongoose, { Schema, Document, models, model } from "mongoose";
+import { Schema, model, models, Document } from "mongoose";
 
-// We can't use the existing User type from /types because it's for the client-side
-// and we need to include the password hash for the backend model.
 export interface IUser extends Document {
   codeforcesHandle: string;
-  password?: string;
+  pin: string;
   rating: number;
   avatar: string;
-  rank?: string;
-  maxRank?: string;
-  maxRating?: number;
-  organization?: string;
+  rank: string;
+  maxRating: number;
+  maxRank: string;
+  organization: string;
 }
 
 const UserSchema: Schema = new Schema({
   codeforcesHandle: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  pin: { type: String, required: true },
   rating: { type: Number, default: 0 },
-  avatar: { type: String, default: "" },
-  rank: { type: String, default: "newbie" },
-  maxRank: { type: String, default: "newbie" },
+  avatar: { type: String, required: true },
+  rank: { type: String, required: true, default: "Unrated" },
   maxRating: { type: Number, default: 0 },
-  organization: { type: String, default: "" },
+  maxRank: { type: String, default: "Unrated" },
+  organization: { type: String },
 });
 
 export default models.User || model<IUser>("User", UserSchema);

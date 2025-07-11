@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { User } from "@/types/User";
 import { SuccessResponse, ErrorResponse, Response } from "@/types/Response";
@@ -36,61 +36,54 @@ const useUser = () => {
     }
   }, [mutate, isClient]);
 
-  const register = async (
-    codeforcesHandle: string,
-    password: string
-  ): Promise<Response<User>> => {
-    try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ codeforcesHandle, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        return ErrorResponse(data.message);
+  const register = useCallback(
+    async (codeforcesHandle: string, pin: string): Promise<Response<User>> => {
+      try {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ codeforcesHandle, pin }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          return ErrorResponse(data.message);
+        }
+        // After successful registration, automatically log the user in
+        return await login(codeforcesHandle, pin);
+      } catch (error) {
+        return ErrorResponse("Failed to connect to the server.");
       }
+    },
+    []
+  );
 
-      // Save token and user to session storage
-      if (isClient) {
-        sessionStorage.setItem("token", data.token);
-        sessionStorage.setItem("user", JSON.stringify(data.user));
+  const login = useCallback(
+    async (codeforcesHandle: string, pin: string): Promise<Response<User>> => {
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ codeforcesHandle, pin }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          return ErrorResponse(data.message);
+        }
+
+        // Save token and user to session storage
+        if (isClient) {
+          sessionStorage.setItem("token", data.token);
+          sessionStorage.setItem("user", JSON.stringify(data.user));
+        }
+
+        await mutate(data.user, false);
+        return SuccessResponse(data.user);
+      } catch (error) {
+        return ErrorResponse("Failed to connect to the server.");
       }
-
-      await mutate(data.user, false);
-      return SuccessResponse(data.user);
-    } catch (error) {
-      return ErrorResponse("Failed to connect to the server.");
-    }
-  };
-
-  const login = async (
-    codeforcesHandle: string,
-    password: string
-  ): Promise<Response<User>> => {
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ codeforcesHandle, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        return ErrorResponse(data.message);
-      }
-
-      // Save token and user to session storage
-      if (isClient) {
-        sessionStorage.setItem("token", data.token);
-        sessionStorage.setItem("user", JSON.stringify(data.user));
-      }
-
-      await mutate(data.user, false);
-      return SuccessResponse(data.user);
-    } catch (error) {
-      return ErrorResponse("Failed to connect to the server.");
-    }
-  };
+    },
+    [isClient, mutate]
+  );
 
   const logout = () => {
     if (isClient) {
@@ -100,6 +93,32 @@ const useUser = () => {
     mutate(null, false);
   };
 
+  const resetPin = async (
+    oldPin: string,
+    newPin: string
+  ): Promise<Response<null>> => {
+    try {
+      const token = sessionStorage.getItem("token");
+      const res = await fetch("/api/auth/reset-pin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ oldPin, newPin }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        return ErrorResponse(data.message);
+      }
+
+      return SuccessResponse(null);
+    } catch (error) {
+      return ErrorResponse("Failed to connect to the server.");
+    }
+  };
+
   return {
     user,
     isLoading: isLoading || !isClient,
@@ -107,6 +126,7 @@ const useUser = () => {
     register,
     login,
     logout,
+    resetPin,
   };
 };
 

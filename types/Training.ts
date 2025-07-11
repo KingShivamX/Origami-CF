@@ -1,17 +1,15 @@
-import { TrainingProblem } from "@/types/TrainingProblem";
+import { Training } from "./TrainingProblem";
 
-type Training = {
+export interface Training {
+  _id?: string;
+  startTime: number;
+  endTime: number;
   customRatings: {
     P1: number;
     P2: number;
     P3: number;
     P4: number;
   };
-  contestTime: number;
-  startTime: number;
-  endTime: number;
   problems: TrainingProblem[];
   performance: number;
-};
-
-export type { Training };
+}

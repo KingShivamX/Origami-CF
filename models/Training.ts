@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, models, model } from "mongoose";
+import { Schema, model, models, Document } from "mongoose";
 import { TrainingProblem } from "@/types/TrainingProblem";
 
 export interface ITraining extends Document {
@@ -11,7 +11,6 @@ export interface ITraining extends Document {
     P3: number;
     P4: number;
   };
-  contestTime: number;
   problems: TrainingProblem[];
   performance: number;
 }
@@ -26,7 +25,6 @@ const TrainingSchema: Schema = new Schema({
     P3: { type: Number, required: true },
     P4: { type: Number, required: true },
   },
-  contestTime: { type: Number, required: true },
   problems: [
     {
       contestId: Number,

@@ -1,25 +1,33 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 import getUser from "@/utils/codeforces/getUser";
+import getRankFromRating from "@/utils/getRankFromRating";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  if (!process.env.JWT_SECRET) {
+    console.error("FATAL: JWT_SECRET environment variable is not set.");
+    return NextResponse.json(
+      { message: "Server configuration error" },
+      { status: 500 }
+    );
+  }
+
   try {
     await dbConnect();
-    const { codeforcesHandle, password } = await req.json();
+    const { codeforcesHandle, pin } = await req.json();
 
-    if (!codeforcesHandle || !password) {
+    if (!codeforcesHandle || !pin) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        { message: "Codeforces handle and PIN are required" },
         { status: 400 }
       );
     }
 
-    if (password.length < 8) {
+    if (!/^\d{4}$/.test(pin)) {
       return NextResponse.json(
-        { message: "Password must be at least 8 characters long" },
+        { message: "PIN must be a 4-digit number" },
         { status: 400 }
       );
     }
@@ -27,59 +35,44 @@ export async function POST(req: Request) {
     const existingUser = await User.findOne({ codeforcesHandle });
     if (existingUser) {
       return NextResponse.json(
-        { message: "User with this handle already exists" },
+        { message: "User already exists" },
         { status: 409 }
       );
     }
 
-    // Check if the Codeforces user exists
     const cfUserResponse = await getUser(codeforcesHandle);
     if (!cfUserResponse.success) {
       return NextResponse.json(
-        { message: "Codeforces user not found" },
-        { status: 404 }
+        { message: "Invalid Codeforces handle" },
+        { status: 400 }
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const profile = cfUserResponse.data;
+    const cfUser = cfUserResponse.data;
+    const rating = cfUser.rating ?? 0;
+    const rank = cfUser.rank ?? getRankFromRating(rating);
+    const hashedPassword = await bcrypt.hash(pin, 10);
 
     const newUser = new User({
       codeforcesHandle,
-      password: hashedPassword,
-      rating: profile.rating,
-      avatar: profile.avatar,
-      rank: profile.rank,
-      maxRank: profile.maxRank,
-      maxRating: profile.maxRating,
-      organization: profile.organization,
+      pin: hashedPassword,
+      rating: rating,
+      avatar: cfUser.avatar,
+      rank: rank,
+      maxRating: cfUser.maxRating ?? 0,
+      maxRank: cfUser.maxRank ?? (cfUser.maxRating ? getRankFromRating(cfUser.maxRating) : "Unrated"),
+      organization: cfUser.organization,
     });
 
     await newUser.save();
-
-    // Create a JWT token
-    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, {
-      expiresIn: "1d", // Token expires in 1 day
-    });
-
     return NextResponse.json(
-      {
-        message: "User registered successfully",
-        token,
-        user: {
-          _id: newUser._id,
-          codeforcesHandle: newUser.codeforcesHandle,
-          rating: newUser.rating,
-          avatar: newUser.avatar,
-          rank: newUser.rank,
-        },
-      },
+      { message: "User created successfully" },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Registration error:", error);
+    console.error(error);
     return NextResponse.json(
-      { message: "An internal server error occurred" },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }

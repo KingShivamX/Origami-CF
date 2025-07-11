@@ -5,8 +5,9 @@ import useUpsolvedProblems from "@/hooks/useUpsolvedProblems";
 import Loader from "@/components/Loader";
 import Error from "@/components/Error";
 import UpsolvedProblemsList from "@/components/UpsolvedProblemsList";
+import { Button } from "@/components/ui/button";
 
-const Upsolve = () => {
+export default function UpsolvePage() {
   const {
     upsolvedProblems,
     isLoading,
@@ -29,19 +30,33 @@ const Upsolve = () => {
     }
   };
 
-  if (!upsolvedProblems || upsolvedProblems.length === 0) {
-    return <div>No problems to upsolve.</div>;
-  }
-
   return (
-    <div>
-      <UpsolvedProblemsList
-        upsolvedProblems={upsolvedProblems}
-        onDelete={onDelete}
-        onRefresh={onRefreshUpsolvedProblems}
-      />
-    </div>
-  );
-};
+    <section className="container grid items-center gap-6 pb-6 pt-2 md:py-4">
+      <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold leading-tight tracking-tight">
+            Upsolving List
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Here are the problems you didn&apos;t solve during your training
+            sessions.
+          </p>
+        </div>
+        <Button variant="outline" onClick={onRefreshUpsolvedProblems}>
+          Refresh Status
+        </Button>
+      </div>
 
-export default Upsolve;
+      {upsolvedProblems && upsolvedProblems.length > 0 ? (
+        <UpsolvedProblemsList
+          upsolvedProblems={upsolvedProblems}
+          onDelete={onDelete}
+        />
+      ) : (
+        <div className="text-center py-16 text-muted-foreground">
+          Your upsolving list is empty. Good job!
+        </div>
+      )}
+    </section>
+  );
+}

@@ -4,12 +4,26 @@ import { TrainingProblem } from "@/types/TrainingProblem";
 import useUser from "./useUser";
 import useProblems from "./useProblems";
 
-const UPSOLVED_PROBLEMS_CACHE_KEY = "upsolved-problems";
-
-const getStoredUpsolvedProblems = (): TrainingProblem[] => {
+const fetcher = async (url: string) => {
   if (typeof window === "undefined") return [];
-  const stored = localStorage.getItem(UPSOLVED_PROBLEMS_CACHE_KEY);
-  return stored ? JSON.parse(stored) : [];
+
+  const token = sessionStorage.getItem("token");
+  if (!token) {
+    // Return empty array if not logged in, as upsolve list is user-specific
+    return [];
+  }
+
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch upsolved problems");
+  }
+
+  return res.json();
 };
 
 const useUpsolvedProblems = () => {
@@ -20,39 +34,60 @@ const useUpsolvedProblems = () => {
     refreshSolvedProblems,
     solvedProblems,
   } = useProblems(user);
+
   const { data, isLoading, error, mutate } = useSWR<TrainingProblem[]>(
-    isClient ? UPSOLVED_PROBLEMS_CACHE_KEY : null,
-    getStoredUpsolvedProblems
+    isClient && user ? "/api/upsolve" : null,
+    fetcher
   );
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // make sure the data is an array
   const upsolvedProblems = useMemo(() => data ?? [], [data]);
 
   const refreshUpsolvedProblems = useCallback(async () => {
-    if (upsolvedProblems?.length === 0) {
+    if (upsolvedProblems.length === 0 || solvedProblems.length === 0) {
       return;
     }
-    const newUpsolvedProblems = upsolvedProblems.map((problem) => {
-      const solvedProblem = solvedProblems.find(
-        (p) => p.contestId === problem.contestId && p.index === problem.index
-      );
-      if (solvedProblem && !problem.solvedTime) {
-        return {
-          ...problem,
-          solvedTime: Date.now(),
-        };
-      }
-      return problem;
-    });
 
-    if (
-      JSON.stringify(newUpsolvedProblems) !== JSON.stringify(upsolvedProblems)
-    ) {
-      await mutate(newUpsolvedProblems, { revalidate: false });
+    const newlySolved = upsolvedProblems
+      .filter((p) => !p.solvedTime) // only check unsolved problems
+      .filter((p) =>
+        solvedProblems.some(
+          (sp) => sp.contestId === p.contestId && sp.index === p.index
+        )
+      )
+      .map((p) => ({ ...p, solvedTime: Date.now() }));
+
+    if (newlySolved.length === 0) return;
+
+    // Optimistic UI update
+    mutate(
+      upsolvedProblems.map(
+        (p) =>
+          newlySolved.find(
+            (ns) => ns.contestId === p.contestId && ns.index === p.index
+          ) || p
+      ),
+      false
+    );
+
+    const token = sessionStorage.getItem("token");
+    try {
+      await fetch("/api/upsolve", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newlySolved),
+      });
+      // Revalidate to get final state from server
+      mutate();
+    } catch (error) {
+      console.error("Failed to update solved status:", error);
+      mutate(); // Rollback on error
     }
   }, [upsolvedProblems, solvedProblems, mutate]);
 
@@ -62,30 +97,72 @@ const useUpsolvedProblems = () => {
     }
   }, [solvedProblems, refreshUpsolvedProblems]);
 
-  useEffect(() => {
-    if (isClient && upsolvedProblems) {
-      localStorage.setItem(
-        UPSOLVED_PROBLEMS_CACHE_KEY,
-        JSON.stringify(upsolvedProblems)
+  const addUpsolvedProblems = useCallback(
+    async (problems: TrainingProblem[]) => {
+      if (!isClient || problems.length === 0) return;
+
+      // Optimistic update
+      mutate((currentData = []) => [...currentData, ...problems], false);
+
+      const token = sessionStorage.getItem("token");
+      try {
+        await fetch("/api/upsolve", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(problems),
+        });
+        // Revalidate to sync with the database
+        mutate();
+      } catch (error) {
+        console.error(error);
+        mutate(); // Rollback
+      }
+    },
+    [isClient, mutate]
+  );
+
+  const deleteUpsolvedProblem = useCallback(
+    async (problem: TrainingProblem) => {
+      if (!isClient) return;
+
+      // Optimistic update
+      mutate(
+        (currentData = []) =>
+          currentData.filter(
+            (p) =>
+              p.contestId !== problem.contestId || p.index !== problem.index
+          ),
+        false
       );
-    }
-  }, [upsolvedProblems, isClient]);
 
-  const addUpsolvedProblems = (problems: TrainingProblem[]) => {
-    const newUpsolvedProblems = [...upsolvedProblems, ...problems];
-    mutate(newUpsolvedProblems, { revalidate: false });
-  };
+      const token = sessionStorage.getItem("token");
+      try {
+        await fetch("/api/upsolve", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            contestId: problem.contestId,
+            index: problem.index,
+          }),
+        });
+        // No revalidation needed on success
+      } catch (error) {
+        console.error(error);
+        mutate(); // Rollback
+      }
+    },
+    [isClient, mutate]
+  );
 
-  const deleteUpsolvedProblem = (problem: TrainingProblem) => {
-    const newUpsolvedProblems = upsolvedProblems.filter(
-      (p) => p.contestId !== problem.contestId || p.index !== problem.index
-    );
-    mutate(newUpsolvedProblems, { revalidate: false });
-  };
-
-  const onRefreshUpsolvedProblems = () => {
+  const onRefreshUpsolvedProblems = useCallback(() => {
     refreshSolvedProblems();
-  };
+  }, [refreshSolvedProblems]);
 
   return {
     upsolvedProblems,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 import { Training } from "@/types/Training";
 import getPerformance from "@/utils/getPerformance";
@@ -42,43 +42,45 @@ const useHistory = () => {
     setIsClient(true);
   }, []);
 
-  const addTraining = async (training: Training) => {
-    if (!isClient) return;
+  const addTraining = useCallback(
+    async (training: Training) => {
+      if (!isClient) return;
 
-    const performance = getPerformance(training);
-    const newTraining = { ...training, performance };
+      const performance = getPerformance(training);
+      const newTraining = { ...training, performance };
 
-    const token = sessionStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
 
-    try {
-      const res = await fetch("/api/trainings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(newTraining),
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to save training");
+      try {
+        await fetch("/api/trainings", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(newTraining),
+        });
+        // Revalidate the SWR cache to show the new training
+        mutate();
+      } catch (error) {
+        console.error(error);
       }
+    },
+    [isClient, mutate]
+  );
 
-      // Revalidate the SWR cache to show the new training
-      mutate();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const deleteTraining = async (trainingId: string) => {
-    // Note: The delete endpoint is not implemented in this pass
-    // For now, we just remove it from the local state
-    mutate(
-      history?.filter((t) => (t as any)._id !== trainingId),
-      false
-    );
-  };
+  const deleteTraining = useCallback(
+    async (trainingId: string) => {
+      // Note: The delete endpoint is not implemented in this pass
+      // For now, we just remove it from the local state
+      mutate(
+        (currentHistory = []) =>
+          currentHistory.filter((t: any) => t._id !== trainingId),
+        false
+      );
+    },
+    [mutate]
+  );
 
   return {
     history: history || [],

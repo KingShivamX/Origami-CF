@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import useUser from "@/hooks/useUser";
 import useProblems from "@/hooks/useProblems";
@@ -7,6 +7,7 @@ import { Training } from "@/types/Training";
 import { ProblemTag } from "@/types/Codeforces";
 import useHistory from "@/hooks/useHistory";
 import useUpsolvedProblems from "@/hooks/useUpsolvedProblems";
+import { start } from "repl";
 
 const TRAINING_STORAGE_KEY = "training-tracker-training";
 
@@ -27,32 +28,38 @@ const useTraining = () => {
   const [training, setTraining] = useState<Training | null>(null);
   const [isTraining, setIsTraining] = useState(false);
 
-  const timerRef = useRef<NodeJS.Timeout>();
-
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const updateProblemStatus = useCallback(() => {
-    if (!training || !solvedProblems) {
-      return;
-    }
+  const updateProblemStatus = useCallback(
+    (currentSolvedProblems: any[]) => {
+      if (!training) return;
 
-    const solvedProblemIds = new Set(
-      solvedProblems.map((p) => `${p.contestId}_${p.index}`)
-    );
+      const solvedProblemIds = new Set(
+        currentSolvedProblems.map((p) => `${p.contestId}_${p.index}`)
+      );
 
-    const updatedProblems = training.problems.map((problem) => ({
-      ...problem,
-      solvedTime: solvedProblemIds.has(`${problem.contestId}_${problem.index}`)
-        ? (problem.solvedTime ?? Date.now())
-        : problem.solvedTime,
-    }));
+      const updatedProblems = training.problems.map((problem) => ({
+        ...problem,
+        solvedTime: solvedProblemIds.has(
+          `${problem.contestId}_${problem.index}`
+        )
+          ? (problem.solvedTime ?? Date.now())
+          : problem.solvedTime,
+      }));
 
-    setTraining((prev) =>
-      prev ? { ...prev, problems: updatedProblems } : null
-    );
-  }, [training, solvedProblems]);
+      // Check if there are actual changes before setting the state
+      if (
+        JSON.stringify(updatedProblems) !== JSON.stringify(training.problems)
+      ) {
+        setTraining((prev) =>
+          prev ? { ...prev, problems: updatedProblems } : null
+        );
+      }
+    },
+    [training]
+  );
 
   const refreshProblemStatus = useCallback(() => {
     refreshSolvedProblems();
@@ -62,14 +69,10 @@ const useTraining = () => {
     // Immediately set training state to false to prevent any race conditions
     setIsTraining(false);
 
-    // Clear any existing timer first
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = undefined;
-    }
+    if (!training) return;
 
-    // Capture current training value before clearing state
-    const currentTraining = training;
+    // Use a local copy of training for the async operations
+    const currentTraining = { ...training };
 
     // Clear all training-related states immediately
     setProblems([]);
@@ -78,16 +81,8 @@ const useTraining = () => {
       localStorage.removeItem(TRAINING_STORAGE_KEY);
     }
 
-    // Only proceed with history update if there was an active training
-    if (!currentTraining) {
-      return;
-    }
-
     const latestSolvedProblems = await refreshSolvedProblems();
-
-    if (!latestSolvedProblems) {
-      return;
-    }
+    if (!latestSolvedProblems) return;
 
     const solvedProblemIds = new Set(
       latestSolvedProblems.map((p) => `${p.contestId}_${p.index}`)
@@ -102,7 +97,6 @@ const useTraining = () => {
 
     addTraining({ ...currentTraining, problems: updatedProblems });
 
-    // Add unsolved problems to upsolved problems list
     const unsolvedProblems = updatedProblems.filter((p) => !p.solvedTime);
     addUpsolvedProblems(unsolvedProblems);
 
@@ -134,16 +128,9 @@ const useTraining = () => {
     }
   }, [isClient]);
 
-  // Update training in localStorage
+  // Update training in localStorage and handle timer
   useEffect(() => {
-    if (!isClient) return;
-
-    if (!training) {
-      // Ensure cleanup when training becomes null
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = undefined;
-      }
+    if (!isClient || !training) {
       return;
     }
 
@@ -151,7 +138,6 @@ const useTraining = () => {
     const now = Date.now();
     const timeLeft = training.endTime - now;
 
-    // If training has expired, finish it
     if (timeLeft <= 0) {
       finishTraining();
       return;
@@ -159,19 +145,12 @@ const useTraining = () => {
 
     setIsTraining(now <= training.endTime);
 
-    // Store timer ID in the ref
-    timerRef.current = setTimeout(() => {
-      finishTraining();
-    }, timeLeft);
+    const timer = setTimeout(finishTraining, timeLeft);
 
-    // Clean up timer when training changes or component unmounts
     return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = undefined;
-      }
+      clearTimeout(timer);
     };
-  }, [training, finishTraining, isClient]);
+  }, [training, isClient, finishTraining]);
 
   // if all problems are solved, finish training
   useEffect(() => {
@@ -186,31 +165,30 @@ const useTraining = () => {
       return;
     }
 
-    updateProblemStatus();
-  }, [isTraining, training, solvedProblems, updateProblemStatus]);
+    updateProblemStatus(solvedProblems);
+  }, [isTraining, solvedProblems, updateProblemStatus, training]);
 
-  const startTraining = (
-    customRatings: { P1: number; P2: number; P3: number; P4: number },
-    contestTime: number
-  ) => {
-    if (!user) {
-      router.push("/");
-      return;
-    }
+  const startTraining = useCallback(
+    (customRatings: { P1: number; P2: number; P3: number; P4: number }) => {
+      if (!user) {
+        router.push("/");
+        return;
+      }
 
-    // Will start in 10 seconds
-    const startTime = Date.now() + 10000;
-    const endTime = startTime + contestTime * 60000;
+      const contestTime = 120; // 120 minutes
+      const startTime = Date.now() + 10000;
+      const endTime = startTime + contestTime * 60000;
 
-    setTraining({
-      startTime,
-      endTime,
-      customRatings,
-      contestTime,
-      problems,
-      performance: 0,
-    });
-  };
+      setTraining({
+        startTime,
+        endTime,
+        customRatings,
+        problems,
+        performance: 0,
+      });
+    },
+    [user, problems, router]
+  );
 
   const stopTraining = () => {
     setIsTraining(false);

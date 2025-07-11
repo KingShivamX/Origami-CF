@@ -1,19 +1,37 @@
-import { NextResponse } from "next/server";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Training from "@/models/Training";
+import User from "@/models/User";
 import { verifyAuth } from "@/lib/auth";
 
-export async function POST(req: NextRequest) {
-  const token = req.headers.get("authorization")?.split(" ")[1];
-
+async function getUserFromToken(request: NextRequest) {
+  const token = request.headers.get("authorization")?.split(" ")[1];
   if (!token) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return {
+      error: NextResponse.json({ message: "Unauthorized" }, { status: 401 }),
+    };
   }
 
-  const verified = await verifyAuth(token);
-  if (!verified) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const decoded = await verifyAuth(token);
+  if (!decoded) {
+    return {
+      error: NextResponse.json({ message: "Invalid token" }, { status: 401 }),
+    };
+  }
+
+  const user = await User.findById(decoded.userId);
+  if (!user) {
+    return {
+      error: NextResponse.json({ message: "User not found" }, { status: 404 }),
+    };
+  }
+  return { user };
+}
+
+export async function POST(req: NextRequest) {
+  const { error, user } = await getUserFromToken(req);
+  if (error) {
+    return error;
   }
 
   try {
@@ -21,7 +39,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const newTraining = new Training({
       ...body,
-      user: verified.userId,
+      user: user?._id,
     });
     await newTraining.save();
     return NextResponse.json(
@@ -29,6 +47,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    console.error("Error saving training:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -37,24 +56,19 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const token = req.headers.get("authorization")?.split(" ")[1];
-
-  if (!token) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
-  const verified = await verifyAuth(token);
-  if (!verified) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const { error, user } = await getUserFromToken(req);
+  if (error) {
+    return error;
   }
 
   try {
     await dbConnect();
-    const trainings = await Training.find({ user: verified.userId }).sort({
+    const trainings = await Training.find({ user: user?._id }).sort({
       startTime: -1,
     });
     return NextResponse.json(trainings);
   } catch (error) {
+    console.error("Error fetching trainings:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

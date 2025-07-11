@@ -19,7 +19,8 @@ const getPerformance = (training: Training) => {
     ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
 
   // Use contest time for threshold calculation
-  const maxThreshold = training.contestTime;
+  const contestTime = (training.endTime - training.startTime) / 60000;
+  const maxThreshold = contestTime;
 
   // Simplified performance calculation based on solved problems and timing
   let performance;

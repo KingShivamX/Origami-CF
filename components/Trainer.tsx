@@ -52,7 +52,6 @@ const Trainer = ({
   lb,
   ub,
   customRatings,
-  contestTime,
 }: {
   isTraining: boolean;
   training: Training | null;
@@ -63,10 +62,12 @@ const Trainer = ({
     ub: number,
     customRatings: { P1: number; P2: number; P3: number; P4: number }
   ) => void;
-  startTraining: (
-    customRatings: { P1: number; P2: number; P3: number; P4: number },
-    contestTime: number
-  ) => void;
+  startTraining: (customRatings: {
+    P1: number;
+    P2: number;
+    P3: number;
+    P4: number;
+  }) => void;
   stopTraining: () => void;
   refreshProblemStatus: () => void;
   finishTraining: () => void;
@@ -74,7 +75,6 @@ const Trainer = ({
   lb: number;
   ub: number;
   customRatings: { P1: number; P2: number; P3: number; P4: number };
-  contestTime: number;
 }) => {
   const onFinishTraining = () => {
     if (confirm("Are you sure to finish the training?")) {
@@ -104,15 +104,10 @@ const Trainer = ({
             />
           ))}
         </div>
-        {isTraining && (
-          <Button variant="outline" size="sm" onClick={refreshProblemStatus}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh Status
-          </Button>
-        )}
-        <div className="flex justify-center gap-4">
+
+        <div className="flex flex-col items-center gap-4">
           {!isTraining ? (
-            <>
+            <div className="flex justify-center gap-4">
               <Button
                 onClick={() =>
                   generateProblems(selectedTags, lb, ub, customRatings)
@@ -123,27 +118,34 @@ const Trainer = ({
                   : "Generate Problems"}
               </Button>
               {problems && problems.length > 0 && (
-                <Button
-                  onClick={() => startTraining(customRatings, contestTime)}
-                >
+                <Button onClick={() => startTraining(customRatings)}>
                   Start
                 </Button>
               )}
-            </>
+            </div>
           ) : (
             training && (
-              <div className="flex flex-col items-center gap-4">
-                <CountDown
-                  startTime={training.startTime}
-                  endTime={training.endTime}
-                />
+              <>
+                <div className="flex items-center gap-4">
+                  <CountDown
+                    startTime={training.startTime}
+                    endTime={training.endTime}
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={refreshProblemStatus}
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
                 <div className="flex gap-4">
                   <Button onClick={onFinishTraining}>Finish</Button>
                   <Button variant="destructive" onClick={onStopTraining}>
                     Stop
                   </Button>
                 </div>
-              </div>
+              </>
             )
           )}
         </div>

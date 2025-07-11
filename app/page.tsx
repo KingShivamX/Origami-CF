@@ -19,13 +19,24 @@ const Home = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 min-h-[calc(100vh-8rem)]">
-      <Card className="w-full max-w-lg">
-        <CardContent className="pt-6">
-          {user ? <Profile user={user} logout={logout} /> : <Settings />}
-        </CardContent>
-      </Card>
-    </div>
+    <section className="container grid items-center gap-6 pb-6 pt-2 md:py-4">
+      <div className="flex max-w-[980px] flex-col items-start gap-1">
+        <h1 className="text-3xl font-bold leading-tight tracking-tight">
+          A Better Way to Practice for Codeforces
+        </h1>
+        <p className="max-w-[700px] text-sm text-muted-foreground">
+          Create custom virtual contests, track your progress, and focus on
+          specific topics to improve your skills.
+        </p>
+      </div>
+      <div className="flex justify-center py-4">
+        <Card className="w-full max-w-lg">
+          <CardContent className="pt-6 flex justify-center">
+            {user ? <Profile user={user} logout={logout} /> : <Settings />}
+          </CardContent>
+        </Card>
+      </div>
+    </section>
   );
 };
 

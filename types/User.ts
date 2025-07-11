@@ -1,11 +1,10 @@
-type User = {
+export interface User {
+  _id: string;
   codeforcesHandle: string;
   rating: number;
   avatar: string;
-  rank?: string;
-  maxRank?: string;
-  maxRating?: number;
+  rank: string;
+  maxRating: number;
+  maxRank: string;
   organization?: string;
-};
-
-export type { User };
+}

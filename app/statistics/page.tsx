@@ -4,9 +4,8 @@ import useHistory from "@/hooks/useHistory";
 import Loader from "@/components/Loader";
 import History from "@/components/History";
 import ProgressChart from "@/components/ProgressChart";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const Statistics = () => {
+export default function StatisticsPage() {
   const { history, isLoading, deleteTraining } = useHistory();
 
   if (isLoading) {
@@ -14,29 +13,30 @@ const Statistics = () => {
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold">Statistics</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {history && history.length > 0 ? (
-          <>
-            <div className="w-full mb-6">
-              <ProgressChart history={history} />
-            </div>
-            <History
-              history={history}
-              deleteTraining={(training: any) => deleteTraining(training._id)}
-            />
-          </>
-        ) : (
-          <div className="text-center py-4 text-muted-foreground">
-            No training history
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-};
+    <section className="container grid items-center gap-6 pb-6 pt-2 md:py-4">
+      <div className="flex flex-col items-start gap-1">
+        <h1 className="text-2xl font-bold leading-tight tracking-tight">
+          Your Progress
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Review your past training sessions and track your performance over
+          time.
+        </p>
+      </div>
 
-export default Statistics;
+      {history && history.length > 0 ? (
+        <div className="space-y-8">
+          <ProgressChart history={history} />
+          <History
+            history={history}
+            deleteTraining={(training: any) => deleteTraining(training._id)}
+          />
+        </div>
+      ) : (
+        <div className="text-center py-16 text-lg text-muted-foreground">
+          You have no training history yet.
+        </div>
+      )}
+    </section>
+  );
+}
