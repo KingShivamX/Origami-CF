@@ -1,15 +1,22 @@
 "use client";
 
 import useHistory from "@/hooks/useHistory";
+import useUser from "@/hooks/useUser";
 import Loader from "@/components/Loader";
+import Error from "@/components/Error";
 import History from "@/components/History";
 import ProgressChart from "@/components/ProgressChart";
 
 export default function StatisticsPage() {
+  const { user, isLoading: isUserLoading } = useUser();
   const { history, isLoading, deleteTraining } = useHistory();
 
-  if (isLoading) {
+  if (isLoading || isUserLoading) {
     return <Loader />;
+  }
+
+  if (!user) {
+    return <Error />;
   }
 
   return (
@@ -27,10 +34,7 @@ export default function StatisticsPage() {
       {history && history.length > 0 ? (
         <div className="space-y-8">
           <ProgressChart history={history} />
-          <History
-            history={history}
-            deleteTraining={(training: any) => deleteTraining(training._id)}
-          />
+          <History history={history} deleteTraining={deleteTraining} />
         </div>
       ) : (
         <div className="text-center py-16 text-lg text-muted-foreground">
