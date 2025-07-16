@@ -77,8 +77,9 @@ export default function TrainingPage() {
     return <Loader />;
   }
 
+  // Wait for user data to be loaded from localStorage
   if (!user) {
-    return <Error />;
+    return <Loader />;
   }
 
   // If training is active, show only the problems section
@@ -121,93 +122,93 @@ export default function TrainingPage() {
             {/* Tags Section */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold">Select Tags</h3>
-              <TagSelector
-                allTags={allTags}
-                selectedTags={selectedTags}
-                onTagClick={onTagClick}
-                onClearTags={onClearTags}
-              />
+        <TagSelector
+          allTags={allTags}
+          selectedTags={selectedTags}
+          onTagClick={onTagClick}
+          onClearTags={onClearTags}
+        />
             </div>
 
             {/* Problem Ratings Section */}
-            <div className="space-y-4">
+        <div className="space-y-4">
               <h3 className="text-xl font-semibold">Set Problem Ratings</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {Object.entries(customRatings).map(([problem, rating]) => {
-                  const isInvalid = rating !== 0 && !isValidRating(rating);
-                  return (
-                    <div key={problem} className="flex flex-col gap-2">
-                      <label className="font-bold text-sm">{problem}:</label>
-                      <div className="flex items-center">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-12 rounded-r-none"
-                          onClick={() =>
-                            handleStep(
-                              problem as keyof typeof customRatings,
-                              "down"
-                            )
-                          }
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <Input
-                          type="number"
-                          step="100"
-                          value={rating || ""}
-                          onChange={(e) =>
-                            handleRatingChange(
-                              problem as keyof typeof customRatings,
-                              e.target.value
-                            )
-                          }
-                          onBlur={() =>
+            {Object.entries(customRatings).map(([problem, rating]) => {
+              const isInvalid = rating !== 0 && !isValidRating(rating);
+              return (
+                <div key={problem} className="flex flex-col gap-2">
+                  <label className="font-bold text-sm">{problem}:</label>
+                  <div className="flex items-center">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-12 rounded-r-none"
+                      onClick={() =>
+                        handleStep(
+                          problem as keyof typeof customRatings,
+                          "down"
+                        )
+                      }
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <Input
+                      type="number"
+                      step="100"
+                      value={rating || ""}
+                      onChange={(e) =>
+                        handleRatingChange(
+                          problem as keyof typeof customRatings,
+                          e.target.value
+                        )
+                      }
+                      onBlur={() =>
                             handleRatingBlur(
                               problem as keyof typeof customRatings
                             )
-                          }
-                          className={`hide-spinners w-full h-12 text-lg font-semibold text-center rounded-none z-10 ${
-                            isInvalid
-                              ? "border-red-500 focus-visible:ring-red-500"
-                              : ""
-                          }`}
-                        />
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-12 rounded-l-none"
-                          onClick={() =>
+                      }
+                      className={`hide-spinners w-full h-12 text-lg font-semibold text-center rounded-none z-10 ${
+                        isInvalid
+                          ? "border-red-500 focus-visible:ring-red-500"
+                          : ""
+                      }`}
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-12 rounded-l-none"
+                      onClick={() =>
                             handleStep(
                               problem as keyof typeof customRatings,
                               "up"
                             )
-                          }
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      {isInvalid && (
-                        <span className="text-red-500 text-xs">
-                          Enter valid rating
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+                      }
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {isInvalid && (
+                    <span className="text-red-500 text-xs">
+                      Enter valid rating
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
             {/* Contest Round Range Section */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold">
                 Contest Round Range (Optional)
               </h3>
-              <Textboxpair
-                onFirstInputChange={onFirstInputChange}
-                onSecondInputChange={onSecondInputChange}
+          <Textboxpair
+            onFirstInputChange={onFirstInputChange}
+            onSecondInputChange={onSecondInputChange}
               />
-            </div>
+        </div>
           </CardContent>
         </Card>
 

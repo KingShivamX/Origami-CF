@@ -48,8 +48,8 @@ const CountDown = ({
 
   if (!mounted) {
     return (
-      <div className="bg-gradient-to-br from-primary/10 to-primary/20 rounded-xl border-2 border-primary/30 shadow-lg px-8 py-6">
-        <div className="text-5xl font-bold text-center text-primary tracking-wider">
+      <div className="bg-muted/50 rounded-lg border-2 border-border/50 px-6 py-4">
+        <div className="text-2xl font-bold text-center text-foreground">
           Loading...
         </div>
       </div>
@@ -61,24 +61,26 @@ const CountDown = ({
   const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
   return (
-    <div className="bg-gradient-to-br from-primary/10 to-primary/20 rounded-xl border-2 border-primary/30 shadow-lg px-8 py-6">
-      <div className="text-5xl font-bold text-center text-primary tracking-wider">
+    <div className="bg-muted/50 rounded-lg border-2 border-border/50 px-6 py-4">
+      <div className="text-center">
         {timeLeft === 0 ? (
           isStarted ? (
-            <span className="text-red-500 text-3xl">Training has ended</span>
+            <span className="text-[#B71F25] text-xl font-semibold">
+              Training has ended
+            </span>
           ) : (
-            <span className="text-green-500 text-3xl">
+            <span className="text-[#1A92CF] text-xl font-semibold">
               Training will start soon
             </span>
           )
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-1">
             {!isStarted && (
-              <div className="text-lg font-medium text-muted-foreground">
+              <div className="text-sm font-medium text-muted-foreground">
                 Training will start in
               </div>
             )}
-            <div className="font-mono">
+            <div className="text-2xl font-bold font-mono text-foreground">
               {hours.toString().padStart(2, "0")}:
               {minutes.toString().padStart(2, "0")}:
               {seconds.toString().padStart(2, "0")}

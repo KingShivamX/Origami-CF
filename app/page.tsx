@@ -22,10 +22,10 @@ const Home = () => {
     <div className="min-h-[calc(100vh-200px)] flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
       {/* Hero Section */}
       <div className="w-full max-w-4xl mx-auto text-center mb-8 sm:mb-12">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight tracking-tight mb-4 sm:mb-6">
           A Better Way to Practice for Codeforces
         </h1>
-        <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+        <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           Create custom virtual contests, track your progress, and focus on
           specific topics to improve your skills.
         </p>

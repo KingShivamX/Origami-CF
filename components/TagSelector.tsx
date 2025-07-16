@@ -15,7 +15,7 @@ const TagSelector = ({
 }) => {
   return (
     <div className="space-y-2">
-      <span className="text-sm font-medium text-muted-foreground">
+      <span className="font-medium text-muted-foreground">
         Problems will be generated randomly if no tags are selected.
       </span>
       <ScrollArea className="w-full rounded-md border">
@@ -24,7 +24,6 @@ const TagSelector = ({
             <Button
               key={tag.value}
               variant={selectedTags.includes(tag) ? "default" : "outline"}
-              size="sm"
               onClick={() => onTagClick(tag)}
             >
               {tag.name}
@@ -32,7 +31,7 @@ const TagSelector = ({
           ))}
         </div>
       </ScrollArea>
-      <Button variant="destructive" size="sm" onClick={onClearTags}>
+      <Button variant="destructive" onClick={onClearTags}>
         Clear All
       </Button>
     </div>

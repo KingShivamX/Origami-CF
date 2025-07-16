@@ -16,7 +16,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
 const links = [
   { href: "/", label: "Home" },
   { href: "/training", label: "Training" },
@@ -31,15 +30,16 @@ const NavBar = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="flex h-14 w-full px-6 items-center justify-between">
+      <div className="flex h-16 w-full px-6 items-center justify-between">
         {/* Left side - Navigation */}
         <div className="flex items-center">
-          <Link href="/" className="mr-8 flex items-center space-x-2 group">
-            <span className="font-bold text-lg bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent group-hover:from-primary/80 group-hover:to-primary transition-all duration-200">
-              Origami-CF
-            </span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm">
+          <div className="mr-8">
+            <Link href="/" className="flex items-center space-x-2">
+              <img src="/favicon.ico" alt="Origami-CF" className="w-8 h-8" />
+              <span className="font-bold text-lg">Origami-CF</span>
+            </Link>
+          </div>
+          <nav className="hidden md:flex items-center gap-6">
             {links.map((link) => (
               <Link
                 key={link.href}
@@ -61,17 +61,22 @@ const NavBar = () => {
           {/* User Profile */}
           <ClientOnly>
             {user && (
-              <div className="hidden md:flex items-center gap-3 hover:bg-muted/50 rounded-lg px-3 py-2 transition-colors duration-200">
-                <Avatar className="w-8 h-8 border-2 border-primary/30 shadow-sm">
+              <a
+                href={`https://codeforces.com/profile/${user.codeforcesHandle}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden md:flex items-center gap-3 hover:bg-muted/50 rounded-lg px-3 py-2 transition-colors duration-200"
+              >
+                <Avatar className="w-9 h-9 border-2 border-primary/30">
                   <AvatarImage src={user.avatar} alt={user.codeforcesHandle} />
-                  <AvatarFallback className="text-xs bg-gradient-to-br from-primary/10 to-primary/20">
+                  <AvatarFallback className="text-sm bg-muted">
                     {user.codeforcesHandle.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium text-foreground">
+                <span className="font-medium text-foreground">
                   {user.codeforcesHandle}
                 </span>
-              </div>
+              </a>
             )}
           </ClientOnly>
 
@@ -92,13 +97,16 @@ const NavBar = () => {
               <SheetContent side="left">
                 <SheetHeader>
                   <SheetTitle>
-                    <Link
-                      href="/"
-                      className="flex items-center"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      <span className="font-bold">Origami-CF</span>
-                    </Link>
+                    <div onClick={() => setIsMenuOpen(false)}>
+                      <Link href="/" className="flex items-center space-x-2">
+                        <img
+                          src="/favicon.ico"
+                          alt="Origami-CF"
+                          className="w-8 h-8"
+                        />
+                        <span className="font-bold text-lg">Origami-CF</span>
+                      </Link>
+                    </div>
                   </SheetTitle>
                 </SheetHeader>
                 <div className="grid gap-4 py-4">
@@ -107,7 +115,7 @@ const NavBar = () => {
                       key={link.href}
                       href={link.href}
                       onClick={() => setIsMenuOpen(false)}
-                      className={`text-lg ${
+                      className={`text-xl ${
                         pathname === link.href
                           ? "text-foreground font-medium"
                           : "text-muted-foreground"
@@ -120,7 +128,12 @@ const NavBar = () => {
                 {/* Mobile User Profile */}
                 {user && (
                   <div className="border-t pt-4 mt-4">
-                    <div className="flex items-center gap-3">
+                    <a
+                      href={`https://codeforces.com/profile/${user.codeforcesHandle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 transition-colors duration-200"
+                    >
                       <Avatar className="w-10 h-10 border-2 border-primary/20">
                         <AvatarImage
                           src={user.avatar}
@@ -131,12 +144,14 @@ const NavBar = () => {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{user.codeforcesHandle}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="font-medium text-lg">
+                          {user.codeforcesHandle}
+                        </p>
+                        <p className="text-muted-foreground">
                           {user.rating} ({user.rank || "Unrated"})
                         </p>
                       </div>
-                    </div>
+                    </a>
                   </div>
                 )}
               </SheetContent>

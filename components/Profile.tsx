@@ -51,7 +51,7 @@ const Profile = ({ user, logout }: { user: User; logout: () => void }) => {
       setOldPin("");
       setNewPin("");
       setConfirmNewPin("");
-      setShowReset(false); // Hide form on success
+      setShowReset(false);
     } else {
       setError(response.error);
     }
@@ -66,11 +66,9 @@ const Profile = ({ user, logout }: { user: User; logout: () => void }) => {
     const response = await syncProfile();
     if (response.success) {
       setSuccess("Profile synced successfully!");
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } else {
       setError(response.error);
-      // Clear error message after 5 seconds
       setTimeout(() => setError(null), 5000);
     }
     setIsSyncing(false);
@@ -80,10 +78,10 @@ const Profile = ({ user, logout }: { user: User; logout: () => void }) => {
     <div className="w-full">
       <CardHeader className="text-center">
         <div className="flex justify-center">
-          <Avatar className="w-24 h-24 mb-4 border-4 border-primary/20 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Avatar className="w-24 h-24 mb-4 border-4 border-primary/20">
             <AvatarImage src={user.avatar} alt={user.codeforcesHandle} />
-            <AvatarFallback className="bg-gradient-to-br from-primary/10 to-primary/20 text-lg font-semibold">
-              {user.codeforcesHandle.charAt(0)}
+            <AvatarFallback className="bg-muted text-lg font-semibold">
+              {user.codeforcesHandle.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </div>
@@ -94,17 +92,15 @@ const Profile = ({ user, logout }: { user: User; logout: () => void }) => {
       </CardHeader>
 
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center mb-6">
-          <div className="bg-gradient-to-br from-muted/30 to-muted/50 rounded-lg p-4 border border-border/50">
-            <p className="text-sm text-muted-foreground font-medium">Rating</p>
+        <div className="grid grid-cols-2 gap-4 text-center mb-6">
+          <div className="bg-muted/50 rounded-lg p-4 border">
+            <p className="text-muted-foreground font-medium">Rating</p>
             <p className="text-lg font-bold text-primary">
               {user.rating || 0} ({user.rank || "Unrated"})
             </p>
           </div>
-          <div className="bg-gradient-to-br from-muted/30 to-muted/50 rounded-lg p-4 border border-border/50">
-            <p className="text-sm text-muted-foreground font-medium">
-              Max Rating
-            </p>
+          <div className="bg-muted/50 rounded-lg p-4 border">
+            <p className="text-muted-foreground font-medium">Max Rating</p>
             <p className="text-lg font-bold text-primary">
               {user.maxRating || 0} ({user.maxRank || "Unrated"})
             </p>
@@ -209,43 +205,38 @@ const Profile = ({ user, logout }: { user: User; logout: () => void }) => {
       </CardContent>
 
       {!showReset && (
-        <CardFooter className="flex justify-center pt-4 gap-2">
+        <CardFooter className="flex flex-col md:flex-row gap-2 pt-4">
+          <Button
+            onClick={handleSyncProfile}
+            className="flex-1 bg-[#FCD56F] hover:bg-[#FCD56F]/90 text-black font-medium"
+            disabled={isSyncing}
+          >
+            {isSyncing ? "Syncing..." : "Sync Profile"}
+          </Button>
           <Button
             onClick={() => {
               setShowReset(true);
               setError(null);
               setSuccess(null);
             }}
-            variant="secondary"
-            size="sm"
-            className="bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/80 hover:to-secondary shadow-md hover:shadow-lg transition-all duration-200"
+            className="flex-1 bg-[#1A92CF] hover:bg-[#1A92CF]/90 text-white font-medium"
           >
             Reset PIN
           </Button>
           <Button
-            onClick={handleSyncProfile}
-            variant="outline"
-            size="sm"
-            disabled={isSyncing}
-            className="bg-gradient-to-r from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 shadow-md hover:shadow-lg transition-all duration-200"
-          >
-            {isSyncing ? "Syncing..." : "Sync Profile"}
-          </Button>
-          <Button
             onClick={logout}
-            variant="destructive"
-            size="sm"
-            className="bg-gradient-to-r from-destructive to-destructive/90 hover:from-destructive/90 hover:to-destructive shadow-md hover:shadow-lg transition-all duration-200"
+            className="flex-1 bg-[#B71F25] hover:bg-[#B71F25]/90 text-white font-medium"
           >
             Logout
           </Button>
         </CardFooter>
       )}
 
-      {/* Status messages for sync operations */}
       {!showReset && (error || success) && (
-        <div className="px-6 pb-4">
-          {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+        <div className="px-6 pb-4 mt-2">
+          {error && (
+            <p className="text-sm text-destructive text-center">{error}</p>
+          )}
           {success && (
             <p className="text-sm text-green-500 text-center">{success}</p>
           )}

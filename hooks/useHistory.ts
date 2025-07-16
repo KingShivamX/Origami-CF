@@ -51,24 +51,24 @@ const useHistory = () => {
       // Use the user's current rating for accurate performance calculation
       const userRating = user?.rating || 1500; // Default to 1500 if rating not available
       const performance = getAccuratePerformance(training, userRating);
-      const newTraining = { ...training, performance };
+    const newTraining = { ...training, performance };
 
       const token = localStorage.getItem("token");
 
-      try {
+    try {
         await fetch("/api/trainings", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(newTraining),
-        });
-        // Revalidate the SWR cache to show the new training
-        mutate();
-      } catch (error) {
-        console.error(error);
-      }
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newTraining),
+      });
+      // Revalidate the SWR cache to show the new training
+      mutate();
+    } catch (error) {
+      console.error(error);
+    }
     },
     [isClient, mutate, user?.rating]
   );
@@ -76,11 +76,11 @@ const useHistory = () => {
   const deleteTraining = useCallback(
     async (trainingId: string) => {
       // Optimistic update
-      mutate(
+    mutate(
         (currentData = []) =>
           currentData.filter((training) => training._id !== trainingId),
-        false
-      );
+      false
+    );
 
       try {
         const token = localStorage.getItem("token");

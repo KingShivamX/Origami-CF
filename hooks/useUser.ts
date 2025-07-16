@@ -33,6 +33,9 @@ const useUser = () => {
     const storedUser = localStorage.getItem("user");
     if (token && storedUser) {
       mutate(JSON.parse(storedUser), false);
+    } else {
+      // If no stored user, mark loading as complete
+      mutate(null, false);
     }
   }, [mutate, isClient]);
 

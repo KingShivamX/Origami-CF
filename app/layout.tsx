@@ -28,8 +28,81 @@ const monda = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Origami-CF",
-  description: "A Codeforces virtual contest practice website.",
+  title: "Origami-CF - Codeforces Virtual Contest Practice Platform",
+  description:
+    "Practice Codeforces problems with virtual contests, track your progress, and improve your competitive programming skills. Create custom training sessions with problem ratings and tags.",
+  keywords: [
+    "Codeforces",
+    "competitive programming",
+    "virtual contest",
+    "practice problems",
+    "algorithm practice",
+    "programming contest",
+    "CP practice",
+    "coding practice",
+    "algorithm problems",
+    "competitive coding",
+    "ThemeCP",
+    "ThemeCP-CF",
+    "ThemeCP-CF-Practice",
+    "ThemeCP-CF-Practice-Platform",
+    "ThemeCP-CF-Practice-Platform-Codeforces",
+    "ThemeCP-CF-Practice-Platform-Codeforces-Virtual-Contest",
+    "ThemeCP-CF-Practice-Platform-Codeforces-Virtual-Contest-Practice",
+    "ThemeCP-CF-Practice-Platform-Codeforces-Virtual-Contest-Practice-Platform",
+    "training tracker",
+    "training tracker",
+  ],
+  authors: [{ name: "Origami-CF Team" }],
+  creator: "Origami-CF",
+  publisher: "Origami-CF",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL("https://origami-cf.vercel.app"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Origami-CF - Codeforces Virtual Contest Practice Platform",
+    description:
+      "Practice Codeforces problems with virtual contests, track your progress, and improve your competitive programming skills.",
+    url: "https://origami-cf.vercel.app",
+    siteName: "Origami-CF",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Origami-CF - Codeforces Practice Platform",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Origami-CF - Codeforces Virtual Contest Practice Platform",
+    description:
+      "Practice Codeforces problems with virtual contests, track your progress, and improve your competitive programming skills.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "your-google-verification-code", // Replace with actual verification code
+  },
 };
 
 export default function RootLayout({
@@ -37,8 +110,46 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Origami-CF",
+    description:
+      "A Codeforces virtual contest practice platform for competitive programming",
+    url: "https://origami-cf.vercel.app",
+    applicationCategory: "EducationalApplication",
+    operatingSystem: "Web Browser",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    author: {
+      "@type": "Organization",
+      name: "Origami-CF Team",
+    },
+    keywords:
+      "Codeforces, competitive programming, virtual contest, practice problems, algorithm practice",
+    featureList: [
+      "Custom virtual contests",
+      "Problem rating selection",
+      "Progress tracking",
+      "Statistics and analytics",
+      "Upsolving list",
+      "Tag-based problem selection",
+    ],
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData),
+          }}
+        />
+      </head>
       <body
         className={cn(
           "bg-background font-sans antialiased",

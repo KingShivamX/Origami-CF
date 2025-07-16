@@ -15,8 +15,9 @@ export default function StatisticsPage() {
     return <Loader />;
   }
 
+  // Wait for user data to be loaded from localStorage
   if (!user) {
-    return <Error />;
+    return <Loader />;
   }
 
   return (

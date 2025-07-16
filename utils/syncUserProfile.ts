@@ -62,3 +62,4 @@ export function shouldSyncProfile(lastSyncTime?: number): boolean {
 
   return now - lastSyncTime >= twentyFourHours;
 }
+ 

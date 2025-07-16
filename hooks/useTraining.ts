@@ -9,7 +9,7 @@ import useHistory from "@/hooks/useHistory";
 import useUpsolvedProblems from "@/hooks/useUpsolvedProblems";
 import { start } from "repl";
 
-const TRAINING_STORAGE_KEY = "training-tracker-training";
+const TRAINING_STORAGE_KEY = "origami-cf-training";
 
 const useTraining = () => {
   const router = useRouter();
@@ -125,7 +125,7 @@ const useTraining = () => {
     isClient,
   ]);
 
-  // Redirect if no user
+  // Redirect if no user (only after loading is complete)
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push("/");

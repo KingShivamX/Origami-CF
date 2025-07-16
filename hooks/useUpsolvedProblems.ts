@@ -154,7 +154,7 @@ const useUpsolvedProblems = () => {
       } catch (error) {
         console.error(error);
         mutate(); // Rollback
-      }
+    }
     },
     [isClient, mutate]
   );

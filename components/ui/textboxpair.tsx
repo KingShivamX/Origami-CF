@@ -30,6 +30,7 @@ const Textboxpair = React.forwardRef<HTMLDivElement, TextboxpairProps>(
     );
   }
 );
+
 Textboxpair.displayName = "Textboxpair";
 
 const Modded_input = React.forwardRef<
@@ -49,6 +50,7 @@ const Modded_input = React.forwardRef<
     />
   );
 });
+
 Modded_input.displayName = "Modded_input";
 
 export { Textboxpair };

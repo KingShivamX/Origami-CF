@@ -71,7 +71,7 @@ const History = ({
   return (
     <>
       {/* Desktop Table View */}
-      <div className="hidden lg:block w-full overflow-x-auto">
+      <div className="hidden lg:block w-full overflow-x-auto rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -81,7 +81,7 @@ const History = ({
                 <TableHead key={index}>P{index + 1}</TableHead>
               ))}
               <TableHead>Performance</TableHead>
-              <TableHead></TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -97,13 +97,14 @@ const History = ({
                   </TableCell>
                 ))}
                 <TableCell>{training.performance}</TableCell>
-                <TableCell>
+                <TableCell className="text-right">
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={() => onDelete(training)}
                   >
                     <Trash2 className="h-4 w-4" />
+                    <span className="sr-only">Delete</span>
                   </Button>
                 </TableCell>
               </TableRow>
@@ -113,37 +114,38 @@ const History = ({
       </div>
 
       {/* Mobile Card View */}
-      <div className="lg:hidden space-y-4">
+      <div className="lg:hidden space-y-3">
         {history.map((training) => (
           <Card key={training.startTime} className="border-2 border-border/50">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">
-                    {new Date(training.startTime).toLocaleDateString()}
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
+            <CardContent className="pt-4">
+              <div className="flex justify-between items-start gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="font-medium text-lg">
+                      {new Date(training.startTime).toLocaleDateString()}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">
                     Avg Rating: {calculateAverageRating(training)} •
                     Performance: {training.performance}
                   </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {training.problems.map((p, index) => (
+                      <div key={p.contestId} className="text-sm">
+                        <span className="font-medium">P{index + 1}: </span>
+                        <Problem problem={p} startTime={training.startTime} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => onDelete(training)}
+                  className="flex-shrink-0"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-2">
-                {training.problems.map((p, index) => (
-                  <div key={p.contestId} className="text-sm">
-                    <span className="font-medium">P{index + 1}: </span>
-                    <Problem problem={p} startTime={training.startTime} />
-                  </div>
-                ))}
               </div>
             </CardContent>
           </Card>

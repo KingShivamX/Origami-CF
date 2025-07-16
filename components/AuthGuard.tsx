@@ -15,17 +15,24 @@ const AuthGuard = ({ children }: { children: React.ReactNode }) => {
   const isProtectedRoute = protectedRoutes.includes(pathname);
 
   useEffect(() => {
-    if (!isLoading && !user && isProtectedRoute) {
-      router.push("/");
-    }
+    // Add a small delay to ensure localStorage is properly loaded
+    const timer = setTimeout(() => {
+      if (!isLoading && !user && isProtectedRoute) {
+        router.push("/");
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [isLoading, user, router, isProtectedRoute]);
 
+  // Show loader while checking authentication
   if (isLoading && isProtectedRoute) {
     return <Loader />;
   }
 
+  // Show loader while waiting for user data to load from localStorage
   if (!user && isProtectedRoute) {
-    return null; // or a loader, while redirecting
+    return <Loader />;
   }
 
   return <>{children}</>;

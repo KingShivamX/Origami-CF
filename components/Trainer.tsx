@@ -6,6 +6,7 @@ import { ProblemTag } from "@/types/Codeforces";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RefreshCw, Lock } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const ProblemRow = ({
   problem,
@@ -20,8 +21,19 @@ const ProblemRow = ({
   startTime: number | null;
   customRatings: { P1: number; P2: number; P3: number; P4: number };
 }) => {
-  const now = Date.now();
-  const isPreContestPeriod = isTraining && startTime && now < startTime;
+  const [currentTime, setCurrentTime] = useState(Date.now());
+
+  useEffect(() => {
+    if (!isTraining || !startTime) return;
+
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isTraining, startTime]);
+
+  const isPreContestPeriod = isTraining && startTime && currentTime < startTime;
   const problemLabels = ["A", "B", "C", "D"];
   const ratingKeys = ["P1", "P2", "P3", "P4"] as const;
 
@@ -40,15 +52,15 @@ const ProblemRow = ({
 
   const content = (
     <div
-      className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
+      className={`flex items-center justify-between p-2.5 border rounded-lg transition-colors ${
         isPreContestPeriod
-          ? "bg-muted/20 cursor-not-allowed opacity-60"
-          : "bg-muted/20 hover:bg-muted/40 cursor-pointer"
+          ? "bg-muted cursor-not-allowed opacity-70"
+          : "bg-card hover:bg-muted/50"
       }`}
     >
       <div className="flex items-center gap-4 flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-lg min-w-[24px]">
+          <span className="font-bold text-lg w-6 text-center">
             {problemLabels[index]}
           </span>
           {isPreContestPeriod && (
@@ -57,14 +69,16 @@ const ProblemRow = ({
         </div>
         <div className="flex-1">
           <div className="font-semibold text-primary">{problem.name}</div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground">
             {problem.contestId}-{problem.index}
           </div>
         </div>
       </div>
       <div className="flex items-center gap-4">
         {!isTraining && (
-          <span className="text-sm font-medium">{problemRating}</span>
+          <span className="font-medium text-muted-foreground">
+            {problemRating}
+          </span>
         )}
         {isTraining && (
           <span className="text-lg font-medium min-w-[80px] text-right">
@@ -80,7 +94,7 @@ const ProblemRow = ({
   }
 
   return (
-    <Link href={problem.url} target="_blank" className="block">
+    <Link href={problem.url} target="_blank" className="block no-underline">
       {content}
     </Link>
   );
@@ -143,9 +157,9 @@ const Trainer = ({
       <CardContent className="pt-8 space-y-8">
         {/* Problems Section */}
         {currentProblems && currentProblems.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-xl font-semibold">Problems</h3>
-            <div className="space-y-2">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Problems</h3>
+            <div className="space-y-1.5">
               {currentProblems.map((problem, index) => (
                 <ProblemRow
                   key={`${problem.contestId}-${problem.index}-${index}`}
@@ -184,7 +198,6 @@ const Trainer = ({
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full py-6 gap-4">
                   <Button
                     variant="outline"
-                    size="lg"
                     onClick={refreshProblemStatus}
                     className="text-lg font-semibold px-6 py-3 lg:order-1"
                   >
@@ -200,7 +213,6 @@ const Trainer = ({
                   <div className="flex gap-3 justify-center lg:justify-end lg:order-3">
                     <Button
                       onClick={onFinishTraining}
-                      size="lg"
                       className="text-lg font-semibold px-6 py-3 flex-1 sm:flex-none"
                     >
                       Finish
@@ -208,7 +220,6 @@ const Trainer = ({
                     <Button
                       variant="destructive"
                       onClick={onStopTraining}
-                      size="lg"
                       className="text-lg font-semibold px-6 py-3 flex-1 sm:flex-none"
                     >
                       Stop
