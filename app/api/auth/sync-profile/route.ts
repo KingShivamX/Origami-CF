@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
         maxRank: syncData.maxRank,
         organization: syncData.organization,
         lastSyncTime: syncData.lastSyncTime,
+        avatar: syncData.avatar,
       },
       { new: true }
     );

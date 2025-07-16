@@ -71,6 +71,21 @@ const useTraining = () => {
 
     if (!training) return;
 
+    // Check if we're finishing during pre-contest period
+    const now = Date.now();
+    const isPreContestPeriod = now < training.startTime;
+
+    if (isPreContestPeriod) {
+      // If finished during pre-contest period, just clear states without saving
+      setProblems([]);
+      setTraining(null);
+      if (isClient) {
+        localStorage.removeItem(TRAINING_STORAGE_KEY);
+      }
+      router.push("/training");
+      return;
+    }
+
     // Use a local copy of training for the async operations
     const currentTraining = { ...training };
 
@@ -176,7 +191,8 @@ const useTraining = () => {
       }
 
       const contestTime = 120; // 120 minutes
-      const startTime = Date.now() + 10000;
+      const preContestDuration = 30 * 1000; // Fixed 30 seconds in milliseconds
+      const startTime = Date.now() + preContestDuration;
       const endTime = startTime + contestTime * 60000;
 
       setTraining({

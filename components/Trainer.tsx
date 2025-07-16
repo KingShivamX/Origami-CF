@@ -5,40 +5,83 @@ import CountDown from "@/components/CountDown";
 import { ProblemTag } from "@/types/Codeforces";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Lock } from "lucide-react";
 
-const ProblemLink = ({
+const ProblemRow = ({
   problem,
+  index,
   isTraining,
   startTime,
+  customRatings,
 }: {
   problem: TrainingProblem;
+  index: number;
   isTraining: boolean;
   startTime: number | null;
+  customRatings: { P1: number; P2: number; P3: number; P4: number };
 }) => {
+  const now = Date.now();
+  const isPreContestPeriod = isTraining && startTime && now < startTime;
+  const problemLabels = ["A", "B", "C", "D"];
+  const ratingKeys = ["P1", "P2", "P3", "P4"] as const;
+
   const getSolvedStatus = () => {
     if (!isTraining) return "";
     if (problem.solvedTime && startTime) {
       const solvedMinutes = Math.floor(
         (problem.solvedTime - startTime) / 60000
       );
-      return `✅ ${solvedMinutes}m `;
+      return `✅ ${solvedMinutes}m`;
     }
-    return "⌛ ";
+    return "⌛";
   };
 
-  return (
-    <Link
-      className="text-primary hover:underline inline-block min-w-[120px] text-center p-2 rounded-lg border border-border/30 bg-muted/20 hover:bg-muted/40 transition-colors"
-      href={problem.url}
-      target="_blank"
+  const problemRating = customRatings[ratingKeys[index]];
+
+  const content = (
+    <div
+      className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
+        isPreContestPeriod
+          ? "bg-muted/20 cursor-not-allowed opacity-60"
+          : "bg-muted/20 hover:bg-muted/40 cursor-pointer"
+      }`}
     >
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-sm opacity-75">{getSolvedStatus()}</span>
-        <span className="font-semibold">
-          {problem.contestId}-{problem.index}
-        </span>
+      <div className="flex items-center gap-4 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-lg min-w-[24px]">
+            {problemLabels[index]}
+          </span>
+          {isPreContestPeriod && (
+            <Lock className="h-4 w-4 text-muted-foreground" />
+          )}
+        </div>
+        <div className="flex-1">
+          <div className="font-semibold text-primary">{problem.name}</div>
+          <div className="text-sm text-muted-foreground">
+            {problem.contestId}-{problem.index}
+          </div>
+        </div>
       </div>
+      <div className="flex items-center gap-4">
+        {!isTraining && (
+          <span className="text-sm font-medium">{problemRating}</span>
+        )}
+        {isTraining && (
+          <span className="text-lg font-medium min-w-[80px] text-right">
+            {getSolvedStatus()}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  if (isPreContestPeriod) {
+    return content;
+  }
+
+  return (
+    <Link href={problem.url} target="_blank" className="block">
+      {content}
     </Link>
   );
 };
@@ -92,22 +135,30 @@ const Trainer = ({
     }
   };
 
+  const currentProblems =
+    isTraining && training?.problems ? training.problems : problems;
+
   return (
     <Card className="border-2 border-border/50 shadow-lg">
       <CardContent className="pt-8 space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xl font-semibold">
-          {(isTraining && training?.problems
-            ? training.problems
-            : problems
-          )?.map((problem, index) => (
-            <ProblemLink
-              key={`${problem.contestId}-${problem.index}-${index}`}
-              problem={problem}
-              isTraining={isTraining}
-              startTime={training?.startTime ?? null}
-            />
-          ))}
-        </div>
+        {/* Problems Section */}
+        {currentProblems && currentProblems.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-xl font-semibold">Problems</h3>
+            <div className="space-y-2">
+              {currentProblems.map((problem, index) => (
+                <ProblemRow
+                  key={`${problem.contestId}-${problem.index}-${index}`}
+                  problem={problem}
+                  index={index}
+                  isTraining={isTraining}
+                  startTime={training?.startTime ?? null}
+                  customRatings={customRatings}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col items-center gap-4">
           {!isTraining ? (

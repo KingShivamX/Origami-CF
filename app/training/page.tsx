@@ -81,6 +81,28 @@ export default function TrainingPage() {
     return <Error />;
   }
 
+  // If training is active, show only the problems section
+  if (isTraining) {
+    return (
+      <section className="container grid items-center gap-6 pb-6 pt-2 md:py-4">
+        <Trainer
+          isTraining={isTraining}
+          training={training}
+          problems={problems}
+          generateProblems={generateProblems}
+          startTraining={startTraining}
+          stopTraining={stopTraining}
+          refreshProblemStatus={refreshProblemStatus}
+          finishTraining={finishTraining}
+          selectedTags={selectedTags}
+          lb={firstInput}
+          ub={secondInput}
+          customRatings={customRatings}
+        />
+      </section>
+    );
+  }
+
   return (
     <section className="container grid items-center gap-6 pb-6 pt-2 md:py-4">
       <div className="flex flex-col items-start gap-1">

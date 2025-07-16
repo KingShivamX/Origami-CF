@@ -8,6 +8,7 @@ export interface UserSyncData {
   maxRank: string;
   organization?: string;
   lastSyncTime: number;
+  avatar: string;
 }
 
 export async function syncUserProfile(
@@ -45,6 +46,7 @@ export async function syncUserProfile(
       maxRank: maxRank,
       organization: cfUser.organization,
       lastSyncTime: Date.now(),
+      avatar: cfUser.avatar,
     };
   } catch (error) {
     console.error("Error syncing user profile:", error);

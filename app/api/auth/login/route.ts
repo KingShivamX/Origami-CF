@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
             maxRank: syncData.maxRank,
             organization: syncData.organization,
             lastSyncTime: syncData.lastSyncTime,
+            avatar: syncData.avatar,
           },
           { new: true }
         );
@@ -69,7 +70,6 @@ export async function POST(req: NextRequest) {
     );
 
     return NextResponse.json({
-      token,
       user: {
         _id: updatedUser._id,
         codeforcesHandle: updatedUser.codeforcesHandle,
@@ -81,6 +81,7 @@ export async function POST(req: NextRequest) {
         organization: updatedUser.organization,
         lastSyncTime: updatedUser.lastSyncTime,
       },
+      token,
     });
   } catch (error) {
     console.error(error);
