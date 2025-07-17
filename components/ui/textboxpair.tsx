@@ -13,7 +13,6 @@ const Textboxpair = React.forwardRef<HTMLDivElement, TextboxpairProps>(
   (props, ref) => {
     // Destructure the event handlers and other props separately
     const { onFirstInputChange, onSecondInputChange, ...otherProps } = props;
-
     return (
       <div ref={ref} className="flex gap-1" {...otherProps}>
         <Modded_input

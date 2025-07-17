@@ -1,3 +1,4 @@
+import * as React from "react";
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import localFont from "next/font/local";
