@@ -5,6 +5,7 @@ import User from "@/models/User";
 import { verifyAuth } from "@/lib/auth";
 
 async function getUserFromToken(request: NextRequest) {
+  await dbConnect(); // Ensure DB connection before any query
   const token = request.headers.get("authorization")?.split(" ")[1];
   if (!token) {
     return {
@@ -35,7 +36,6 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await dbConnect();
     const body = await req.json();
     const newTraining = new Training({
       ...body,
@@ -62,7 +62,6 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    await dbConnect();
     const trainings = await Training.find({ user: user?._id }).sort({
       startTime: -1,
     });

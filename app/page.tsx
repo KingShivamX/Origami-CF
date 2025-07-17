@@ -20,17 +20,12 @@ const Home = () => {
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-      {/* Hero Section */}
-      <div className="w-full max-w-4xl mx-auto text-center mb-8 sm:mb-12">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight tracking-tight mb-4 sm:mb-6">
-          A Better Way to Practice for Codeforces
-        </h1>
-        <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Create custom virtual contests, track your progress, and focus on
-          specific topics to improve your skills.
-        </p>
-      </div>
-
+      <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-primary">
+        Origami-CF
+      </h1>
+      <p className="text-lg text-muted-foreground mb-8">
+        A better way to practice for Codeforces.
+      </p>
       {/* Auth Card Section */}
       <div className="w-full max-w-md mx-auto">
         <Card className="border-2 border-border/50 shadow-xl hover:shadow-2xl transition-shadow duration-300">
@@ -39,8 +34,6 @@ const Home = () => {
           </CardContent>
         </Card>
       </div>
-
-      {/* Optional spacing for very large screens */}
       <div className="flex-1 min-h-8"></div>
     </div>
   );

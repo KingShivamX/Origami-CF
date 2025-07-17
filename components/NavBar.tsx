@@ -36,7 +36,6 @@ const NavBar = () => {
           <div className="mr-8">
             <Link href="/" className="flex items-center space-x-2">
               <img src="/favicon.ico" alt="Origami-CF" className="w-8 h-8" />
-              <span className="font-bold text-lg">Origami-CF</span>
             </Link>
           </div>
           <nav className="hidden md:flex items-center gap-6">
@@ -104,7 +103,6 @@ const NavBar = () => {
                           alt="Origami-CF"
                           className="w-8 h-8"
                         />
-                        <span className="font-bold text-lg">Origami-CF</span>
                       </Link>
                     </div>
                   </SheetTitle>

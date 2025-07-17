@@ -5,6 +5,7 @@ import User from "@/models/User";
 import { verifyAuth } from "@/lib/auth";
 
 async function getUserFromToken(request: NextRequest) {
+  await dbConnect(); // Ensure DB connection before any query
   const token = request.headers.get("authorization")?.split(" ")[1];
   if (!token) {
     return {
