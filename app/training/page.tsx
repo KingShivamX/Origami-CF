@@ -32,7 +32,12 @@ export default function TrainingPage() {
   const { firstInput, secondInput, onFirstInputChange, onSecondInputChange } =
     useBounds();
 
-  const [customRatings, setCustomRatings] = useState(() => {
+  const [customRatings, setCustomRatings] = useState<{
+    P1: number;
+    P2: number;
+    P3: number;
+    P4: number;
+  }>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("origami-cf-customRatings");
       if (stored) return JSON.parse(stored);
@@ -56,16 +61,25 @@ export default function TrainingPage() {
     value: string
   ) => {
     if (value === "") {
-      setCustomRatings((prev) => ({ ...prev, [problem]: 0 }));
+      setCustomRatings((prev: typeof customRatings) => ({
+        ...prev,
+        [problem]: 0,
+      }));
       return;
     }
     const numValue = parseInt(value.replace(/^0+/, "") || "0", 10);
-    setCustomRatings((prev) => ({ ...prev, [problem]: numValue }));
+    setCustomRatings((prev: typeof customRatings) => ({
+      ...prev,
+      [problem]: numValue,
+    }));
   };
 
   const handleRatingBlur = (problem: keyof typeof customRatings) => {
     if (!isValidRating(customRatings[problem])) {
-      setCustomRatings((prev) => ({ ...prev, [problem]: 800 }));
+      setCustomRatings((prev: typeof customRatings) => ({
+        ...prev,
+        [problem]: 800,
+      }));
     }
   };
 
@@ -78,7 +92,10 @@ export default function TrainingPage() {
       direction === "up" ? currentRating + 100 : currentRating - 100;
     if (newRating > 3500) newRating = 3500;
     if (newRating < 800) newRating = 800;
-    setCustomRatings((prev) => ({ ...prev, [problem]: newRating }));
+    setCustomRatings((prev: typeof customRatings) => ({
+      ...prev,
+      [problem]: newRating,
+    }));
   };
 
   if (isLoading) {
