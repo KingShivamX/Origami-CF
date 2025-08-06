@@ -9,6 +9,7 @@ export interface IUpsolvedProblem extends Document {
   tags: string[];
   url: string;
   solvedTime: number | null;
+  createdAt: Date;
 }
 
 const UpsolvedProblemSchema: Schema = new Schema({
@@ -20,6 +21,7 @@ const UpsolvedProblemSchema: Schema = new Schema({
   tags: [{ type: String, required: true }],
   url: { type: String, required: true },
   solvedTime: { type: Number, default: null },
+  createdAt: { type: Date, default: Date.now },
 });
 
 // Prevent duplicate problems per user

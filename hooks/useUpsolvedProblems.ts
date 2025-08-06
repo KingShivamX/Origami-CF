@@ -43,7 +43,11 @@ const useUpsolvedProblems = () => {
     setIsClient(true);
   }, []);
 
-  const upsolvedProblems = useMemo(() => data ?? [], [data]);
+  const upsolvedProblems = useMemo(() => {
+    const problems = data ?? [];
+    // Keep the original order as they were added to the database
+    return problems;
+  }, [data]);
 
   const refreshUpsolvedProblems = useCallback(async () => {
     if (upsolvedProblems.length === 0 || solvedProblems.length === 0) {
@@ -100,8 +104,11 @@ const useUpsolvedProblems = () => {
     async (problems: TrainingProblem[]) => {
       if (!isClient || problems.length === 0) return;
 
-      // Optimistic update
-      mutate((currentData = []) => [...currentData, ...problems], false);
+      // Optimistic update - append new problems at the end in their original order
+      mutate((currentData = []) => {
+        // Add new problems at the end, maintaining their original order
+        return [...currentData, ...problems];
+      }, false);
 
       const token = localStorage.getItem("token");
       try {
@@ -154,7 +161,7 @@ const useUpsolvedProblems = () => {
       } catch (error) {
         console.error(error);
         mutate(); // Rollback
-    }
+      }
     },
     [isClient, mutate]
   );

@@ -113,6 +113,7 @@ const useTraining = () => {
     addTraining({ ...currentTraining, problems: updatedProblems });
 
     const unsolvedProblems = updatedProblems.filter((p) => !p.solvedTime);
+    // Keep the original order as they were selected for training (1st, 2nd, 3rd, 4th)
     addUpsolvedProblems(unsolvedProblems);
 
     router.push("/statistics");

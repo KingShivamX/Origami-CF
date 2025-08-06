@@ -37,7 +37,10 @@ export async function GET(request: NextRequest) {
   if (error) return error;
 
   try {
-    const upsolvedProblems = await UpsolvedProblem.find({ user: user._id });
+    const upsolvedProblems = await UpsolvedProblem.find({
+      user: user._id,
+    }).sort({ createdAt: 1, _id: 1 }); // Sort by creation time and then by _id for consistent ordering
+    
     return NextResponse.json(upsolvedProblems);
   } catch (err) {
     console.error("Error fetching upsolved problems:", err);
@@ -56,6 +59,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const problems: TrainingProblem[] = await request.json();
+    
     const problemsToInsert = problems.map((p) => ({ ...p, user: user._id }));
 
     // Use insertMany with ordered: false to continue on duplicate key errors
