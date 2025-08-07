@@ -44,13 +44,15 @@ const Problem = ({
 const History = ({
   history,
   deleteTraining,
+  isDeleting,
 }: {
   history: Training[];
-  deleteTraining: (training: Training) => void;
+  deleteTraining: (trainingId: string) => void;
+  isDeleting: string | null;
 }) => {
-  const onDelete = (training: Training) => {
+  const onDelete = (trainingId: string) => {
     if (confirm("Are you sure you want to delete this training session?")) {
-      deleteTraining(training);
+      deleteTraining(trainingId);
     }
   };
 
@@ -101,7 +103,8 @@ const History = ({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => onDelete(training)}
+                    onClick={() => onDelete(training._id!)}
+                    disabled={isDeleting === training._id}
                   >
                     <Trash2 className="h-4 w-4" />
                     <span className="sr-only">Delete</span>
@@ -141,7 +144,8 @@ const History = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onDelete(training)}
+                  onClick={() => onDelete(training._id!)}
+                  disabled={isDeleting === training._id}
                   className="flex-shrink-0"
                 >
                   <Trash2 className="h-4 w-4" />

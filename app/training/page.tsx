@@ -14,6 +14,7 @@ import useTags from "@/hooks/useTags";
 import useUser from "@/hooks/useUser";
 import Loader from "@/components/Loader";
 import Error from "@/components/Error";
+import { SubmissionStatus } from "@/utils/codeforces/getTrainingSubmissionStatus";
 
 export default function TrainingPage() {
   const { user } = useUser();
@@ -25,9 +26,11 @@ export default function TrainingPage() {
     training,
     isTraining,
     isLoading,
+    isRefreshing,
     refreshProblemStatus,
     finishTraining,
     generateProblems,
+    submissionStatuses,
   } = useTraining();
   const { firstInput, secondInput, onFirstInputChange, onSecondInputChange } =
     useBounds();
@@ -124,6 +127,8 @@ export default function TrainingPage() {
           lb={firstInput}
           ub={secondInput}
           customRatings={customRatings}
+          submissionStatuses={submissionStatuses}
+          isRefreshing={isRefreshing}
         />
       </section>
     );
@@ -136,8 +141,7 @@ export default function TrainingPage() {
           Create a Contest
         </h1>
         <p className="text-sm text-muted-foreground">
-          Select tags and problem ratings to generate your custom training
-          session.
+          Select problem ratings to generate your custom training session.
         </p>
       </div>
 
@@ -146,12 +150,23 @@ export default function TrainingPage() {
           <CardContent className="pt-6 space-y-8">
             {/* Tags Section */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold">Select Tags</h3>
+              <h3 className="text-xl font-semibold">Select Tags (Optional)</h3>
               <TagSelector
                 allTags={allTags}
                 selectedTags={selectedTags}
                 onTagClick={onTagClick}
                 onClearTags={onClearTags}
+              />
+            </div>
+
+            {/* Contest Round Range Section */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">
+                Contest Round Range (Optional)
+              </h3>
+              <Textboxpair
+                onFirstInputChange={onFirstInputChange}
+                onSecondInputChange={onSecondInputChange}
               />
             </div>
 
@@ -223,17 +238,6 @@ export default function TrainingPage() {
                 })}
               </div>
             </div>
-
-            {/* Contest Round Range Section */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold">
-                Contest Round Range (Optional)
-              </h3>
-              <Textboxpair
-                onFirstInputChange={onFirstInputChange}
-                onSecondInputChange={onSecondInputChange}
-              />
-            </div>
           </CardContent>
         </Card>
 
@@ -250,6 +254,8 @@ export default function TrainingPage() {
           lb={firstInput}
           ub={secondInput}
           customRatings={customRatings}
+          submissionStatuses={submissionStatuses}
+          isRefreshing={isRefreshing}
         />
       </div>
     </section>

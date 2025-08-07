@@ -9,7 +9,7 @@ import ProgressChart from "@/components/ProgressChart";
 
 export default function StatisticsPage() {
   const { user, isLoading: isUserLoading } = useUser();
-  const { history, isLoading, deleteTraining } = useHistory();
+  const { history, isLoading, deleteTraining, isDeleting } = useHistory();
 
   if (isLoading || isUserLoading) {
     return <Loader />;
@@ -37,9 +37,8 @@ export default function StatisticsPage() {
           <ProgressChart history={history} />
           <History
             history={history}
-            deleteTraining={(training: any) =>
-              deleteTraining(training._id.toString())
-            }
+            deleteTraining={(trainingId: string) => deleteTraining(trainingId)}
+            isDeleting={isDeleting}
           />
         </div>
       ) : (
