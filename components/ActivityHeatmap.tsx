@@ -62,12 +62,12 @@ const ActivityHeatmap = ({
           <CardTitle>Activity Heatmap</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto overflow-y-visible p-4 pb-6">
-            <div className="w-full flex justify-start">
+          <div className="overflow-x-auto overflow-y-visible p-2 pb-6">
+            <div className="w-full flex justify-center pb-2">
               <HeatMap
                 value={heatmapData}
                 width={Math.max(300, Math.min(containerWidth - 200, 1000))}
-                rectSize={13}
+                rectSize={15}
                 space={3}
                 startDate={startDate}
                 endDate={endDate}
