@@ -69,26 +69,34 @@ export default function Home() {
         <div className="sm:col-span-2 lg:col-span-1">
           <Profile user={user} />
         </div>
-        <Card>
+        <Card className="flex flex-col justify-center min-h-[120px] sm:min-h-[140px]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Solved</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm sm:text-base font-medium">
+              Total Solved
+            </CardTitle>
+            <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalSolved}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="flex-1 flex flex-col justify-center items-center text-center px-3 py-2">
+            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-1 sm:mb-2">
+              {totalSolved}
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground leading-tight max-w-full">
               problems solved across all sessions
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="flex flex-col justify-center min-h-[120px] sm:min-h-[140px]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Contests</CardTitle>
-            <BarChart className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm sm:text-base font-medium">
+              Contests
+            </CardTitle>
+            <BarChart className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{history?.length || 0}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="flex-1 flex flex-col justify-center items-center text-center px-3 py-2">
+            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-1 sm:mb-2">
+              {history?.length || 0}
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground leading-tight max-w-full">
               training sessions completed
             </p>
           </CardContent>
