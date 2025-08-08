@@ -31,12 +31,14 @@ const Problem = ({
   };
   return (
     <Link
-      className="text-primary hover:underline duration-300"
+      className="text-primary hover:underline duration-300 font-medium text-sm flex items-center gap-1"
       href={problem.url}
       target="_blank"
     >
-      {getSolvedStatus()}
-      {problem.contestId}-{problem.index}
+      <span className="text-base">{getSolvedStatus()}</span>
+      <span className="truncate">
+        {problem.contestId}-{problem.index}
+      </span>
     </Link>
   );
 };
@@ -116,40 +118,72 @@ const History = ({
         </Table>
       </div>
 
-      {/* Mobile Card View */}
-      <div className="lg:hidden space-y-3">
+      {/* Mobile & Tablet Card View */}
+      <div className="lg:hidden space-y-4">
         {history.map((training) => (
-          <Card key={training.startTime} className="border-2 border-border/50">
-            <CardContent className="pt-4">
-              <div className="flex justify-between items-start gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-medium text-lg">
-                      {new Date(training.startTime).toLocaleDateString()}
-                    </h3>
+          <Card
+            key={training.startTime}
+            className="shadow-sm border-border/60 hover:shadow-md transition-shadow"
+          >
+            <CardContent className="p-5 sm:p-6">
+              <div className="space-y-4">
+                {/* Header with date and delete button */}
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground">
+                    {new Date(training.startTime).toLocaleDateString("en-US", {
+                      month: "numeric",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDelete(training._id!)}
+                    disabled={isDeleting === training._id}
+                    className="flex-shrink-0 h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Stats section */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-medium">Avg Rating:</span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {calculateAverageRating(training)}
+                    </span>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Avg Rating: {calculateAverageRating(training)} •
-                    Performance: {training.performance}
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <span className="hidden sm:inline text-muted-foreground/60">
+                    •
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-medium">Performance:</span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {training.performance}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Problems section */}
+                <div className="pt-2 border-t border-border/50">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {training.problems.map((p, index) => (
-                      <div key={p.contestId} className="text-sm">
-                        <span className="font-medium">P{index + 1}: </span>
-                        <Problem problem={p} startTime={training.startTime} />
+                      <div
+                        key={p.contestId}
+                        className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                      >
+                        <span className="text-sm font-semibold text-muted-foreground min-w-[2rem]">
+                          P{index + 1}:
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <Problem problem={p} startTime={training.startTime} />
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onDelete(training._id!)}
-                  disabled={isDeleting === training._id}
-                  className="flex-shrink-0"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
               </div>
             </CardContent>
           </Card>
