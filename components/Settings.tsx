@@ -9,6 +9,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import useUser from "@/hooks/useUser";
 
 const Settings = () => {
@@ -60,72 +61,76 @@ const Settings = () => {
   };
 
   return (
-    <div className="w-full max-w-sm">
-      <h2 className="text-2xl font-bold text-center mb-4">
-        {isLogin ? "Login" : "Register"}
-      </h2>
-      <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label
-            htmlFor="codeforcesHandle"
-            className="block text-sm font-medium mb-1"
-          >
-            Codeforces Handle
-          </label>
-          <Input
-            id="codeforcesHandle"
-            type="text"
-            value={codeforcesHandle}
-            onChange={(e) => setCodeforcesHandle(e.target.value)}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <label htmlFor="pin" className="block text-sm font-medium">
-              4-Digit PIN
-            </label>
-            {isLogin && (
-              <Link
-                href="/reset-pin"
-                className="text-sm text-primary hover:underline"
-              >
-                Forgot PIN?
-              </Link>
-            )}
-          </div>
-          <div className="flex justify-center">
-            <InputOTP
-              maxLength={4}
-              value={pin}
-              onChange={setPin}
-              onComplete={() => formRef.current?.requestSubmit()}
+    <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle className="text-2xl text-center">
+          {isLogin ? "Login" : "Register"}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label
+              htmlFor="codeforcesHandle"
+              className="block text-sm font-medium mb-1"
             >
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-              </InputOTPGroup>
-            </InputOTP>
+              Codeforces Handle
+            </label>
+            <Input
+              id="codeforcesHandle"
+              type="text"
+              value={codeforcesHandle}
+              onChange={(e) => setCodeforcesHandle(e.target.value)}
+              required
+            />
           </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <label htmlFor="pin" className="block text-sm font-medium">
+                4-Digit PIN
+              </label>
+              {isLogin && (
+                <Link
+                  href="/reset-pin"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot PIN?
+                </Link>
+              )}
+            </div>
+            <div className="flex justify-center">
+              <InputOTP
+                maxLength={4}
+                value={pin}
+                onChange={setPin}
+                onComplete={() => formRef.current?.requestSubmit()}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+          </div>
+          {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+          {success && (
+            <p className="text-sm text-green-500 text-center">{success}</p>
+          )}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Loading..." : isLogin ? "Login" : "Register"}
+          </Button>
+        </form>
+        <div className="mt-4 text-center">
+          <button onClick={handleToggleForm} className="text-sm text-primary">
+            {isLogin
+              ? "Don't have an account? Register"
+              : "Already have an account? Login"}
+          </button>
         </div>
-        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-        {success && (
-          <p className="text-sm text-green-500 text-center">{success}</p>
-        )}
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Loading..." : isLogin ? "Login" : "Register"}
-        </Button>
-      </form>
-      <div className="mt-4 text-center">
-        <button onClick={handleToggleForm} className="text-sm text-primary">
-          {isLogin
-            ? "Don't have an account? Register"
-            : "Already have an account? Login"}
-        </button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
