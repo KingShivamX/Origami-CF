@@ -255,7 +255,7 @@ const useTraining = () => {
       }
 
       const contestTime = 120; // 120 minutes
-      const preContestDuration = 10 * 1000; // Fixed 30 seconds in milliseconds
+      const preContestDuration = 10 * 1000; // Fixed 10 seconds in milliseconds
       const startTime = Date.now() + preContestDuration;
       const endTime = startTime + contestTime * 60000;
 
