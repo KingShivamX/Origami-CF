@@ -63,9 +63,16 @@ const getTrainingSubmissionStatus = async (
         continue;
       }
 
-      // If no AC, check if the latest submission is still being tested
+      // If no AC, check if the latest submission is still being tested or in queue
       const latestSubmission = problemSubmissions[0];
-      if (latestSubmission.verdict === "TESTING") {
+      if (
+        latestSubmission.verdict === "TESTING" ||
+        latestSubmission.verdict === "IN_QUEUE" ||
+        latestSubmission.verdict === "PENDING" ||
+        latestSubmission.verdict === "SUBMITTED" ||
+        !latestSubmission.verdict || // Handle cases where verdict might be undefined
+        latestSubmission.verdict === ""
+      ) {
         submissionStatuses.push({
           problemId,
           status: "TESTING",
