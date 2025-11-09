@@ -15,11 +15,11 @@ export interface IUser extends Document {
 const UserSchema: Schema = new Schema({
   codeforcesHandle: { type: String, required: true, unique: true },
   pin: { type: String, required: true },
-  rating: { type: Number, default: 0 },
+  rating: { type: Number, default: 1500 },
   avatar: { type: String, required: true },
-  rank: { type: String, required: true, default: "Unrated" },
-  maxRating: { type: Number, default: 0 },
-  maxRank: { type: String, default: "Unrated" },
+  rank: { type: String, required: true, default: "Specialist" },
+  maxRating: { type: Number, default: 1500 },
+  maxRank: { type: String, default: "Specialist" },
   organization: { type: String },
   lastSyncTime: { type: Number, default: 0 },
 });

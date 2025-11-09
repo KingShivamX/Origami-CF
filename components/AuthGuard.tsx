@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import useUser from "@/hooks/useUser";
 import Loader from "@/components/Loader";
 
-const protectedRoutes = ["/training", "/statistics", "/upsolve"];
+const protectedRoutes = ["/training", "/statistics", "/upsolve", "/custom-problems"];
 
 const AuthGuard = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useUser();

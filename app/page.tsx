@@ -97,7 +97,7 @@ export default function Home() {
               {history?.length || 0}
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground leading-tight max-w-full">
-              training sessions completed
+              contests completed
             </p>
           </CardContent>
         </Card>
@@ -146,16 +146,16 @@ export default function Home() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base md:text-lg">
-              Start a New Session
+              Create a Virtual Contest
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4 text-sm md:text-base">
-              Ready for your next challenge? Create a custom training session.
+              Ready for your next challenge? Create a custom virtual contest.
             </p>
             <Button asChild size="sm" className="w-full text-sm">
               <Link href="/training">
-                Go to Training <ArrowRight className="ml-2 h-4 w-4" />
+                Create Virtual Contest <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </CardContent>

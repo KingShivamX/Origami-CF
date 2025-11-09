@@ -31,7 +31,7 @@ const monda = localFont({
 export const metadata: Metadata = {
   title: "Origami-CF - Codeforces Virtual Contest Practice Platform",
   description:
-    "Practice Codeforces problems with virtual contests, track your progress, and improve your competitive programming skills. Create custom training sessions with problem ratings and tags.",
+    "Practice Codeforces problems with virtual contests, track your progress, and improve your competitive programming skills. Create custom virtual contests with problem ratings and tags.",
   keywords: [
     "Codeforces",
     "competitive programming",

@@ -24,10 +24,10 @@ export default function StatisticsPage() {
     <section className="container grid items-center gap-6 pb-6 pt-2 md:py-4">
       <div className="flex flex-col items-start gap-1">
         <h1 className="text-2xl font-bold leading-tight tracking-tight">
-          Your Progress
+          Your History
         </h1>
         <p className="text-sm text-muted-foreground">
-          Review your past training sessions and track your performance over
+          Review your past contests and track your performance over
           time.
         </p>
       </div>
@@ -38,7 +38,7 @@ export default function StatisticsPage() {
           <ProgressChart history={history} />
           <div className="space-y-4">
             <h2 className="text-xl font-semibold tracking-tight">
-              Training History
+              Contest History
             </h2>
             <History
               history={history}
@@ -51,7 +51,7 @@ export default function StatisticsPage() {
         </div>
       ) : (
         <div className="text-center py-16 text-muted-foreground">
-          No training history yet. Start your first training session to see your progress here.
+          No contest history yet. Start your first virtual contest to see your progress here.
         </div>
       )}
     </section>

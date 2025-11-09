@@ -141,7 +141,7 @@ export default function TrainingPage() {
           Create a Contest
         </h1>
         <p className="text-sm text-muted-foreground">
-          Select problem ratings to generate your custom training session.
+          Select problem ratings to generate your custom virtual contest.
         </p>
       </div>
 
