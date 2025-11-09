@@ -6,7 +6,7 @@ import getSubmissions from "@/utils/codeforces/getSubmissions";
 
 export type SubmissionStatus = {
   problemId: string; // format: "contestId_index"
-  status: "AC" | "WA" | "TESTING" | "none"; // AC = accepted, WA = unsuccessful, TESTING = in progress
+  status: "AC" | "WA" | "TESTING" | "none"; // AC = accepted, WA = actual failures, TESTING = in progress/partial/other
   lastSubmissionTime?: number;
 };
 
@@ -63,28 +63,38 @@ const getTrainingSubmissionStatus = async (
         continue;
       }
 
-      // If no AC, check if the latest submission is still being tested or in queue
+      // Get the latest submission to check its verdict
       const latestSubmission = problemSubmissions[0];
-      if (
-        latestSubmission.verdict === "TESTING" ||
-        latestSubmission.verdict === "IN_QUEUE" ||
-        latestSubmission.verdict === "PENDING" ||
-        latestSubmission.verdict === "SUBMITTED" ||
-        !latestSubmission.verdict || // Handle cases where verdict might be undefined
-        latestSubmission.verdict === ""
-      ) {
+      
+      // Define actual failure verdicts (should be red)
+      const failureVerdicts = [
+        "WRONG_ANSWER",
+        "COMPILATION_ERROR", 
+        "RUNTIME_ERROR",
+        "TIME_LIMIT_EXCEEDED",
+        "MEMORY_LIMIT_EXCEEDED",
+        "IDLENESS_LIMIT_EXCEEDED",
+        "SECURITY_VIOLATED",
+        "CRASHED",
+        "INPUT_PREPARATION_CRASHED",
+        "REJECTED",
+        "FAILED"
+      ];
+      
+      // Check if it's an actual failure
+      if (failureVerdicts.includes(latestSubmission.verdict)) {
         submissionStatuses.push({
           problemId,
-          status: "TESTING",
+          status: "WA",
           lastSubmissionTime: latestSubmission.creationTimeSeconds * 1000,
         });
         continue;
       }
 
-      // If not AC and not testing, it's a wrong answer
+      // Everything else (TESTING, SUBMITTED, IN_QUEUE, PARTIAL, SKIPPED, CHALLENGED, etc.) should be blue
       submissionStatuses.push({
         problemId,
-        status: "WA",
+        status: "TESTING",
         lastSubmissionTime: latestSubmission.creationTimeSeconds * 1000,
       });
     }

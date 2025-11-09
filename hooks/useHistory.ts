@@ -24,6 +24,14 @@ const fetcher = async (url: string) => {
     },
   });
 
+  if (res.status === 401) {
+    // Token expired, clear localStorage and reload page
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.reload();
+    throw new Error("Authentication expired");
+  }
+
   if (!res.ok) {
     throw new Error("Failed to fetch trainings");
   }
@@ -56,7 +64,7 @@ const useHistory = () => {
       const token = localStorage.getItem("token");
 
       try {
-        await fetch("/api/trainings", {
+        const response = await fetch("/api/trainings", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -64,6 +72,15 @@ const useHistory = () => {
           },
           body: JSON.stringify(newTraining),
         });
+
+        if (response.status === 401) {
+          // Token expired, clear localStorage and reload page
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.reload();
+          return;
+        }
+
         // Revalidate the SWR cache to show the new training
         mutate();
       } catch (error) {
@@ -96,6 +113,14 @@ const useHistory = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+
+        if (response.status === 401) {
+          // Token expired, clear localStorage and reload page
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.reload();
+          return;
+        }
 
         if (!response.ok) {
           throw new Error("Failed to delete training");
