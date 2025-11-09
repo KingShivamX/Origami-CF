@@ -17,10 +17,11 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/training", label: "Training" },
-  { href: "/statistics", label: "Statistics" },
+  { href: "/", label: "Origami-CF" },
+  { href: "/training", label: "Contest" },
+  { href: "/statistics", label: "History" },
   { href: "/upsolve", label: "Upsolve" },
+  { href: "/custom-problems", label: "Saved" },
 ];
 
 const NavBar = () => {

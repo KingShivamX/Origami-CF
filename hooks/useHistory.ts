@@ -54,7 +54,7 @@ const useHistory = () => {
 
   const addTraining = useCallback(
     async (training: Training) => {
-      if (!isClient) return;
+      if (!isClient) return null;
 
       // Use the user's current rating for accurate performance calculation
       const userRating = user?.rating || 1500; // Default to 1500 if rating not available
@@ -78,13 +78,23 @@ const useHistory = () => {
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           window.location.reload();
-          return;
+          return null;
         }
 
+        if (!response.ok) {
+          throw new Error("Failed to save training");
+        }
+
+        const data = await response.json();
+        
         // Revalidate the SWR cache to show the new training
         mutate();
+        
+        // Return rating change data for display
+        return data.ratingChange || null;
       } catch (error) {
         console.error(error);
+        return null;
       }
     },
     [isClient, mutate, user?.rating]
