@@ -17,6 +17,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Normalize username: trim spaces and convert to lowercase
+    const normalizedHandle = codeforcesHandle.trim().toLowerCase();
+
     if (!/^\d{4}$/.test(pin)) {
       return NextResponse.json(
         { message: "PIN must be a 4-digit number" },
@@ -24,7 +27,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await User.findOne({ codeforcesHandle });
+    const user = await User.findOne({ codeforcesHandle: normalizedHandle });
     if (!user) {
       return NextResponse.json(
         { message: "Invalid credentials" },
@@ -43,7 +46,7 @@ export async function POST(req: NextRequest) {
     // Check if profile sync is needed and update if necessary
     let updatedUser = user;
     if (shouldSyncProfile(user.lastSyncTime)) {
-      const syncData = await syncUserProfile(user.codeforcesHandle);
+      const syncData = await syncUserProfile(normalizedHandle);
       if (syncData) {
         updatedUser = await User.findByIdAndUpdate(
           user._id,

@@ -26,8 +26,8 @@ const ProgressChart = ({ history }: { history: Training[] }) => {
       <CardContent className="px-3 sm:px-6">
         <ResponsiveContainer
           width="100%"
-          height={200}
-          className="sm:h-[250px] lg:h-[300px]"
+          height={280}
+          className="sm:h-[320px] lg:h-[380px]"
         >
           <LineChart
             data={chartData}

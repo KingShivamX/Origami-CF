@@ -25,19 +25,50 @@ const useUser = () => {
     setIsClient(true);
   }, []);
 
+  // Add token validation function
+  const validateToken = useCallback(async (token: string): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/auth/validate-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }, []);
+
   useEffect(() => {
     // Only attempt to load user from localStorage after client hydration
     if (!isClient) return;
 
-    const token = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
-    if (token && storedUser) {
-      mutate(JSON.parse(storedUser), false);
-    } else {
-      // If no stored user, mark loading as complete
-      mutate(null, false);
-    }
-  }, [mutate, isClient]);
+    const loadUser = async () => {
+      const token = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
+      
+      if (token && storedUser) {
+        // Validate token before loading user
+        const isValidToken = await validateToken(token);
+        
+        if (isValidToken) {
+          mutate(JSON.parse(storedUser), false);
+        } else {
+          // Token expired, clear localStorage and logout
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          mutate(null, false);
+        }
+      } else {
+        // If no stored user, mark loading as complete
+        mutate(null, false);
+      }
+    };
+
+    loadUser();
+  }, [mutate, isClient, validateToken]);
 
   const register = useCallback(
     async (codeforcesHandle: string, pin: string): Promise<Response<User>> => {
@@ -111,6 +142,14 @@ const useUser = () => {
         body: JSON.stringify({ oldPin, newPin }),
       });
 
+      if (res.status === 401) {
+        // Token expired, clear localStorage and reload page
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.reload();
+        return ErrorResponse("Authentication expired");
+      }
+
       const data = await res.json();
       if (!res.ok) {
         return ErrorResponse(data.message);
@@ -135,6 +174,14 @@ const useUser = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      if (res.status === 401) {
+        // Token expired, clear localStorage and reload page
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.reload();
+        return ErrorResponse("Authentication expired");
+      }
 
       const data = await res.json();
       if (!res.ok) {

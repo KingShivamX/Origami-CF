@@ -25,6 +25,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Normalize username: trim spaces and convert to lowercase
+    const normalizedHandle = codeforcesHandle.trim().toLowerCase();
+
     if (!/^\d{4}$/.test(pin)) {
       return NextResponse.json(
         { message: "PIN must be a 4-digit number" },
@@ -32,7 +35,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const existingUser = await User.findOne({ codeforcesHandle });
+    const existingUser = await User.findOne({ codeforcesHandle: normalizedHandle });
     if (existingUser) {
       return NextResponse.json(
         { message: "User already exists" },
@@ -40,7 +43,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const cfUserResponse = await getUser(codeforcesHandle);
+    const cfUserResponse = await getUser(normalizedHandle);
     if (!cfUserResponse.success) {
       return NextResponse.json(
         { message: "Invalid Codeforces handle" },
@@ -54,7 +57,7 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await bcrypt.hash(pin, 10);
 
     const newUser = new User({
-      codeforcesHandle,
+      codeforcesHandle: normalizedHandle,
       pin: hashedPassword,
       rating: rating,
       avatar: cfUser.avatar,

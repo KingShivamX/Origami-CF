@@ -62,7 +62,11 @@ const ProblemRow = ({
         case "WA":
           return <span className="text-lg leading-none">❌</span>;
         case "TESTING":
-          return <span className="text-lg leading-none animate-spin">🔄</span>;
+          return (
+            <span className="text-lg leading-none animate-spin text-blue-500">
+              🔄
+            </span>
+          );
         default:
           break;
       }
@@ -95,13 +99,20 @@ const ProblemRow = ({
       case "WA":
         return "bg-red-500/20 border-red-500/30";
       case "TESTING":
-        return "bg-blue-500/20 border-blue-500/30 animate-pulse";
+        return "bg-blue-500/30 border-blue-500/50 animate-pulse shadow-lg shadow-blue-500/20";
       default:
         return "";
     }
   };
 
   const overlayClass = getOverlayClass();
+
+  // Debug logging to help understand the status
+  if (submissionStatus && isTraining) {
+    console.log(
+      `Problem ${problem.name}: Status = ${submissionStatus.status}, Overlay = ${overlayClass}`
+    );
+  }
 
   const content = (
     <div

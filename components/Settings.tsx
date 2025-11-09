@@ -10,7 +10,24 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Eye, EyeOff } from "lucide-react";
 import useUser from "@/hooks/useUser";
+
+// Custom masked InputOTPSlot component that overlays the original slot  
+const MaskedInputOTPSlot = ({ index, showPin, pin }: { index: number; showPin: boolean; pin: string }) => {
+  const hasChar = pin[index];
+  
+  return (
+    <div className="relative">
+      <InputOTPSlot index={index} className={showPin ? "" : "text-transparent"} />
+      {!showPin && hasChar && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <span className="text-lg">•</span>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Settings = () => {
   const [codeforcesHandle, setCodeforcesHandle] = useState("");
@@ -19,6 +36,7 @@ const Settings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showPin, setShowPin] = useState(false);
   const { login, register } = useUser();
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -89,14 +107,24 @@ const Settings = () => {
               <label htmlFor="pin" className="block text-sm font-medium">
                 4-Digit PIN
               </label>
-              {isLogin && (
-                <Link
-                  href="/reset-pin"
-                  className="text-sm text-primary hover:underline"
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPin(!showPin)}
+                  className="text-sm text-primary hover:underline flex items-center gap-1"
                 >
-                  Forgot PIN?
-                </Link>
-              )}
+                  {showPin ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                  {showPin ? "Hide" : "Show"}
+                </button>
+                {isLogin && (
+                  <Link
+                    href="/reset-pin"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Forgot PIN?
+                  </Link>
+                )}
+              </div>
             </div>
             <div className="flex justify-center">
               <InputOTP
@@ -106,10 +134,10 @@ const Settings = () => {
                 onComplete={() => formRef.current?.requestSubmit()}
               >
                 <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
+                  <MaskedInputOTPSlot index={0} showPin={showPin} pin={pin} />
+                  <MaskedInputOTPSlot index={1} showPin={showPin} pin={pin} />
+                  <MaskedInputOTPSlot index={2} showPin={showPin} pin={pin} />
+                  <MaskedInputOTPSlot index={3} showPin={showPin} pin={pin} />
                 </InputOTPGroup>
               </InputOTP>
             </div>

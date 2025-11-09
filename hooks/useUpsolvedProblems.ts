@@ -18,6 +18,14 @@ const fetcher = async (url: string) => {
     },
   });
 
+  if (res.status === 401) {
+    // Token expired, clear localStorage and reload page
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.reload();
+    throw new Error("Authentication expired");
+  }
+
   if (!res.ok) {
     throw new Error("Failed to fetch upsolved problems");
   }
@@ -78,7 +86,7 @@ const useUpsolvedProblems = () => {
 
     const token = localStorage.getItem("token");
     try {
-      await fetch("/api/upsolve", {
+      const response = await fetch("/api/upsolve", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -86,6 +94,15 @@ const useUpsolvedProblems = () => {
         },
         body: JSON.stringify(newlySolved),
       });
+
+      if (response.status === 401) {
+        // Token expired, clear localStorage and reload page
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.reload();
+        return;
+      }
+
       // Revalidate to get final state from server
       mutate();
     } catch (error) {
@@ -112,7 +129,7 @@ const useUpsolvedProblems = () => {
 
       const token = localStorage.getItem("token");
       try {
-        await fetch("/api/upsolve", {
+        const response = await fetch("/api/upsolve", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -120,6 +137,15 @@ const useUpsolvedProblems = () => {
           },
           body: JSON.stringify(problems),
         });
+
+        if (response.status === 401) {
+          // Token expired, clear localStorage and reload page
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.reload();
+          return;
+        }
+
         // Revalidate to sync with the database
         mutate();
       } catch (error) {
@@ -146,7 +172,7 @@ const useUpsolvedProblems = () => {
 
       const token = localStorage.getItem("token");
       try {
-        await fetch("/api/upsolve", {
+        const response = await fetch("/api/upsolve", {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -157,6 +183,15 @@ const useUpsolvedProblems = () => {
             index: problem.index,
           }),
         });
+
+        if (response.status === 401) {
+          // Token expired, clear localStorage and reload page
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.reload();
+          return;
+        }
+
         // No revalidation needed on success
       } catch (error) {
         console.error(error);
