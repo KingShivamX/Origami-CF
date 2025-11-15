@@ -89,7 +89,7 @@ const CustomProblemsList = ({
                       </Badge>
                     )}
                     
-                    {showTags && problem.tags && problem.tags.length > 0 && (
+                    {(showTags || problem.solvedTime) && problem.tags && problem.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {problem.tags.map((tag, tagIndex) => (
                           <Badge
@@ -103,12 +103,6 @@ const CustomProblemsList = ({
                       </div>
                     )}
                   </div>
-                  
-                  {problem.solvedTime && (
-                    <div className="text-xs text-muted-foreground">
-                      Solved: {new Date(problem.solvedTime).toLocaleDateString()}
-                    </div>
-                  )}
                 </div>
               </div>
               

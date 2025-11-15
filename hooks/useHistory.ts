@@ -46,7 +46,7 @@ const useHistory = () => {
     data: history,
     error,
     mutate,
-  } = useSWR<Training[]>(isClient ? "/api/trainings" : null, fetcher);
+  } = useSWR<Training[]>(isClient ? "/api/contests" : null, fetcher);
 
   useEffect(() => {
     setIsClient(true);
@@ -64,7 +64,7 @@ const useHistory = () => {
       const token = localStorage.getItem("token");
 
       try {
-        const response = await fetch("/api/trainings", {
+        const response = await fetch("/api/contests", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -117,7 +117,7 @@ const useHistory = () => {
 
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`/api/trainings/${trainingId}`, {
+        const response = await fetch(`/api/contests/${trainingId}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,

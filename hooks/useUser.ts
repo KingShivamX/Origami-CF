@@ -7,6 +7,7 @@ const USER_CACHE_KEY = "codeforces-user";
 
 const useUser = () => {
   const [isClient, setIsClient] = useState(false);
+  const [isLoadingFromStorage, setIsLoadingFromStorage] = useState(true);
   const {
     data: user,
     isLoading,
@@ -25,19 +26,29 @@ const useUser = () => {
     setIsClient(true);
   }, []);
 
-  // Add token validation function
+  // Add token validation function with timeout
   const validateToken = useCallback(async (token: string): Promise<boolean> => {
     try {
-      const res = await fetch("/api/auth/validate-token", {
+      // Create a timeout promise
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Validation timeout')), 2000); // 2 second timeout
+      });
+
+      const fetchPromise = fetch("/api/auth/validate-token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
+
+      // Race between fetch and timeout
+      const res = await Promise.race([fetchPromise, timeoutPromise]);
       return res.ok;
     } catch {
-      return false;
+      // If validation fails or times out, assume token is still valid
+      // It will be invalidated on the first actual API call if expired
+      return true;
     }
   }, []);
 
@@ -46,24 +57,30 @@ const useUser = () => {
     if (!isClient) return;
 
     const loadUser = async () => {
-      const token = localStorage.getItem("token");
-      const storedUser = localStorage.getItem("user");
-      
-      if (token && storedUser) {
-        // Validate token before loading user
-        const isValidToken = await validateToken(token);
+      try {
+        const token = localStorage.getItem("token");
+        const storedUser = localStorage.getItem("user");
         
-        if (isValidToken) {
+        if (token && storedUser) {
+          // Load user immediately from localStorage for instant page load
           mutate(JSON.parse(storedUser), false);
+          
+          // Validate token in background (non-blocking)
+          validateToken(token).then((isValid) => {
+            if (!isValid) {
+              // Token expired, clear localStorage and logout
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              mutate(null, false);
+            }
+          });
         } else {
-          // Token expired, clear localStorage and logout
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
+          // If no stored user, mark loading as complete
           mutate(null, false);
         }
-      } else {
-        // If no stored user, mark loading as complete
-        mutate(null, false);
+      } finally {
+        // Mark loading from storage as complete immediately
+        setIsLoadingFromStorage(false);
       }
     };
 
@@ -202,7 +219,7 @@ const useUser = () => {
 
   return {
     user,
-    isLoading: isLoading || !isClient,
+    isLoading: isLoading || !isClient || isLoadingFromStorage,
     error,
     register,
     login,

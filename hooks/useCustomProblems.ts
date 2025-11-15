@@ -43,7 +43,7 @@ const useCustomProblems = () => {
   } = useProblems(user);
 
   const { data, isLoading, error, mutate } = useSWR<TrainingProblem[]>(
-    isClient && user ? "/api/custom-problems" : null,
+    isClient && user ? "/api/saved" : null,
     fetcher
   );
 
@@ -86,7 +86,7 @@ const useCustomProblems = () => {
 
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch("/api/custom-problems", {
+      const response = await fetch("/api/saved", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -128,7 +128,7 @@ const useCustomProblems = () => {
 
       const token = localStorage.getItem("token");
       try {
-        const response = await fetch("/api/custom-problems", {
+        const response = await fetch("/api/saved", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -171,7 +171,7 @@ const useCustomProblems = () => {
 
       const token = localStorage.getItem("token");
       try {
-        const response = await fetch("/api/custom-problems", {
+        const response = await fetch("/api/saved", {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",

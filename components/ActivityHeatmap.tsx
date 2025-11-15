@@ -12,14 +12,16 @@ import ClientOnly from "@/components/ClientOnly";
 interface ActivityHeatmapProps {
   history: Training[];
   upsolvedProblems?: TrainingProblem[];
+  customProblems?: TrainingProblem[];
 }
 
 const ActivityHeatmap = ({
   history,
   upsolvedProblems = [],
+  customProblems = [],
 }: ActivityHeatmapProps) => {
   const { theme } = useTheme();
-  const { values: heatmapData } = useHeatmapData(history, upsolvedProblems);
+  const { values: heatmapData } = useHeatmapData(history, upsolvedProblems, customProblems);
 
   const [containerWidth, setContainerWidth] = useState(800);
   const [monthsToShow, setMonthsToShow] = useState(12);

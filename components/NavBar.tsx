@@ -18,10 +18,10 @@ import {
 } from "@/components/ui/sheet";
 const links = [
   { href: "/", label: "Origami-CF" },
-  { href: "/training", label: "Contest" },
-  { href: "/statistics", label: "History" },
+  { href: "/contest", label: "Contest" },
+  { href: "/history", label: "History" },
   { href: "/upsolve", label: "Upsolve" },
-  { href: "/custom-problems", label: "Saved" },
+  { href: "/saved", label: "Saved" },
 ];
 
 const NavBar = () => {

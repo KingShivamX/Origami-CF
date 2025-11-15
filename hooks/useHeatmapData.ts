@@ -14,7 +14,8 @@ export interface HeatmapData {
 
 export const useHeatmapData = (
   history: Training[],
-  upsolvedProblems: TrainingProblem[] = []
+  upsolvedProblems: TrainingProblem[] = [],
+  customProblems: TrainingProblem[] = []
 ): HeatmapData => {
   return useMemo(() => {
     const dailyCounts: { [key: string]: number } = {};
@@ -66,11 +67,32 @@ export const useHeatmapData = (
       });
     }
 
+    // Process custom/saved problems
+    if (customProblems && customProblems.length > 0) {
+      customProblems.forEach((problem) => {
+        if (problem.solvedTime) {
+          totalSolved++;
+
+          // Only add to heatmap if solved in the last year
+          if (new Date(problem.solvedTime) >= oneYearAgo) {
+            const date = new Date(problem.solvedTime)
+              .toISOString()
+              .split("T")[0];
+            if (dailyCounts[date]) {
+              dailyCounts[date]++;
+            } else {
+              dailyCounts[date] = 1;
+            }
+          }
+        }
+      });
+    }
+
     const values = Object.keys(dailyCounts).map((date) => ({
       date,
       count: dailyCounts[date],
     }));
 
     return { values, totalSolved };
-  }, [history, upsolvedProblems]);
+  }, [history, upsolvedProblems, customProblems]);
 };

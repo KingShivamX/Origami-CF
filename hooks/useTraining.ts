@@ -130,7 +130,7 @@ const useTraining = () => {
         localStorage.removeItem(TRAINING_STORAGE_KEY);
         localStorage.removeItem(SUBMISSION_STATUS_STORAGE_KEY);
       }
-      router.push("/training");
+      router.push("/contest");
       return;
     }
 
@@ -184,7 +184,7 @@ const useTraining = () => {
     // Users can see their updated rating in their profile
     // Contest performance is shown in the history
 
-    router.push("/statistics");
+    router.push("/history");
   }, [training, addTraining, router, addUpsolvedProblems, isClient, user]);
 
   // Redirect if no user (only after loading is complete)

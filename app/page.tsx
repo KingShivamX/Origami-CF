@@ -17,6 +17,7 @@ import Settings from "@/components/Settings";
 import ChangePinDialog from "@/components/ChangePinDialog";
 import useHistory from "@/hooks/useHistory";
 import useUpsolvedProblems from "@/hooks/useUpsolvedProblems";
+import useCustomProblems from "@/hooks/useCustomProblems";
 import ActivityHeatmap from "@/components/ActivityHeatmap";
 import { useHeatmapData } from "@/hooks/useHeatmapData";
 import { useState } from "react";
@@ -26,7 +27,12 @@ export default function Home() {
   const { history, isLoading: isHistoryLoading } = useHistory();
   const { upsolvedProblems, isLoading: isUpsolveLoading } =
     useUpsolvedProblems();
-  const { totalSolved } = useHeatmapData(history || [], upsolvedProblems || []);
+  const { customProblems, isLoading: isCustomLoading } = useCustomProblems();
+  const { totalSolved } = useHeatmapData(
+    history || [],
+    upsolvedProblems || [],
+    customProblems || []
+  );
   const [isSyncing, setIsSyncing] = useState(false);
 
   const handleSync = async () => {
@@ -35,7 +41,8 @@ export default function Home() {
     setIsSyncing(false);
   };
 
-  if (isUserLoading || isHistoryLoading || isUpsolveLoading) {
+  // Only wait for user loading, load other data in background
+  if (isUserLoading) {
     return <Loader />;
   }
 
@@ -106,6 +113,7 @@ export default function Home() {
       <ActivityHeatmap
         history={history || []}
         upsolvedProblems={upsolvedProblems || []}
+        customProblems={customProblems || []}
       />
 
       <div className="grid gap-4 md:gap-6 md:grid-cols-2">
@@ -154,7 +162,7 @@ export default function Home() {
               Ready for your next challenge? Create a custom virtual contest.
             </p>
             <Button asChild size="sm" className="w-full text-sm">
-              <Link href="/training">
+              <Link href="/contest">
                 Create Virtual Contest <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
