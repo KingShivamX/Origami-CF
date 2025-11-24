@@ -105,19 +105,29 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const solvedProblems: TrainingProblem[] = await request.json();
+    const updatedProblems: TrainingProblem[] = await request.json();
 
     await dbConnect();
 
-    // Update solved times for the specified problems
-    for (const problem of solvedProblems) {
+    // Update solved times and ratings for the specified problems
+    for (const problem of updatedProblems) {
+      const updateData: any = {};
+
+      if (problem.solvedTime !== undefined) {
+        updateData.solvedTime = problem.solvedTime;
+      }
+
+      if (problem.rating !== undefined) {
+        updateData.rating = problem.rating;
+      }
+
       await CustomProblem.findOneAndUpdate(
         {
           userId: user._id,
           contestId: problem.contestId,
           index: problem.index,
         },
-        { solvedTime: problem.solvedTime },
+        updateData,
         { new: true }
       );
     }

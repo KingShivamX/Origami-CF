@@ -64,7 +64,7 @@ const CustomProblemsList = ({
                     <Circle className="h-5 w-5 text-muted-foreground" />
                   )}
                 </div>
-                
+
                 <div className="flex-1 min-w-0 space-y-2">
                   <div className="flex flex-wrap items-start gap-2">
                     <Link
@@ -72,40 +72,43 @@ const CustomProblemsList = ({
                       target="_blank"
                       className="font-semibold text-primary hover:underline break-words"
                     >
-                      {problem.contestId}{problem.index}. {problem.name}
+                      {problem.contestId}
+                      {problem.index}. {problem.name}
                     </Link>
                   </div>
-                  
+
                   <div className="flex flex-wrap items-center gap-2">
-                    {problem.rating && (
-                      <Badge
-                        variant="secondary"
-                        className={cn(
-                          "text-white text-xs font-medium",
-                          getRatingColor(problem.rating)
-                        )}
-                      >
-                        {problem.rating}
-                      </Badge>
-                    )}
-                    
-                    {(showTags || problem.solvedTime) && problem.tags && problem.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {problem.tags.map((tag, tagIndex) => (
-                          <Badge
-                            key={tagIndex}
-                            variant="outline"
-                            className="text-xs"
-                          >
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        "text-white text-xs font-medium",
+                        problem.rating
+                          ? getRatingColor(problem.rating)
+                          : "bg-gray-400"
+                      )}
+                    >
+                      {problem.rating || "-"}
+                    </Badge>
+
+                    {(showTags || problem.solvedTime) &&
+                      problem.tags &&
+                      problem.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {problem.tags.map((tag, tagIndex) => (
+                            <Badge
+                              key={tagIndex}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2 self-start sm:self-center">
                 <Button
                   variant="ghost"
@@ -119,10 +122,11 @@ const CustomProblemsList = ({
             </div>
           ))}
         </div>
-        
+
         {customProblems.length > 0 && (
           <div className="mt-6 pt-4 border-t text-sm text-muted-foreground text-center">
-            {customProblems.filter(p => !p.solvedTime).length} unsolved • {customProblems.filter(p => p.solvedTime).length} solved
+            {customProblems.filter((p) => !p.solvedTime).length} unsolved •{" "}
+            {customProblems.filter((p) => p.solvedTime).length} solved
           </div>
         )}
       </CardContent>

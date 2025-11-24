@@ -58,44 +58,85 @@ const useCustomProblems = () => {
   }, [data]);
 
   const refreshCustomProblems = useCallback(async () => {
-    if (customProblems.length === 0 || solvedProblems.length === 0) {
+    if (customProblems.length === 0) {
       return;
     }
 
-    const newlySolved = customProblems
-      .filter((p) => !p.solvedTime) // only check unsolved problems
-      .filter((p) =>
-        solvedProblems.some(
-          (sp) => sp.contestId === p.contestId && sp.index === p.index
-        )
-      )
-      .map((p) => ({ ...p, solvedTime: Date.now() }));
-
-    if (newlySolved.length === 0) return;
-
-    // Optimistic UI update
-    mutate(
-      customProblems.map(
-        (p) =>
-          newlySolved.find(
-            (ns) => ns.contestId === p.contestId && ns.index === p.index
-          ) || p
-      ),
-      false
-    );
-
-    const token = localStorage.getItem("token");
     try {
-      const response = await fetch("/api/saved", {
+      // Fetch latest problem data from Codeforces API
+      const response = await fetch(
+        `https://codeforces.com/api/problemset.problems`
+      );
+      const data = await response.json();
+
+      if (data.status !== "OK") {
+        console.error("Failed to fetch problem details from Codeforces");
+        return;
+      }
+
+      const updates: TrainingProblem[] = [];
+
+      // Check each custom problem for solve status and rating updates
+      for (const problem of customProblems) {
+        let needsUpdate = false;
+        const updatedProblem = { ...problem };
+
+        // Check if problem is newly solved
+        if (!problem.solvedTime && solvedProblems.length > 0) {
+          const isSolved = solvedProblems.some(
+            (sp) =>
+              sp.contestId === problem.contestId && sp.index === problem.index
+          );
+          if (isSolved) {
+            updatedProblem.solvedTime = Date.now();
+            needsUpdate = true;
+          }
+        }
+
+        // Check if problem has gotten a rating (or rating has changed)
+        const cfProblem = data.result.problems.find(
+          (p: any) =>
+            p.contestId === problem.contestId && p.index === problem.index
+        );
+
+        if (
+          cfProblem &&
+          cfProblem.rating &&
+          cfProblem.rating !== problem.rating
+        ) {
+          updatedProblem.rating = cfProblem.rating;
+          needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+          updates.push(updatedProblem);
+        }
+      }
+
+      if (updates.length === 0) return;
+
+      // Optimistic UI update
+      mutate(
+        customProblems.map(
+          (p) =>
+            updates.find(
+              (u) => u.contestId === p.contestId && u.index === p.index
+            ) || p
+        ),
+        false
+      );
+
+      const token = localStorage.getItem("token");
+      const updateResponse = await fetch("/api/saved", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(newlySolved),
+        body: JSON.stringify(updates),
       });
 
-      if (response.status === 401) {
+      if (updateResponse.status === 401) {
         // Token expired, clear localStorage and reload page
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -106,7 +147,7 @@ const useCustomProblems = () => {
       // Revalidate to get final state from server
       mutate();
     } catch (error) {
-      console.error("Failed to update solved status:", error);
+      console.error("Failed to update problems:", error);
       mutate(); // Rollback on error
     }
   }, [customProblems, solvedProblems, mutate]);
