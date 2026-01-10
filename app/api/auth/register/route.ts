@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Normalize username: trim spaces and convert to lowercase
-    const normalizedHandle = codeforcesHandle.trim().toLowerCase();
+    const normalizedHandle = codeforcesHandle.trim();
 
     if (!/^\d{4}$/.test(pin)) {
       return NextResponse.json(
@@ -35,7 +35,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const existingUser = await User.findOne({ codeforcesHandle: normalizedHandle });
+    const normalizedHandleLower=normalizedHandle.toLowerCase();
+    const existingUser = await User.findOne({ codeforcesHandleLower: normalizedHandleLower });
     if (existingUser) {
       return NextResponse.json(
         { message: "User already exists" },
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const cfUserResponse = await getUser(normalizedHandle);
+    const cfUserResponse = await getUser(normalizedHandleLower);
     if (!cfUserResponse.success) {
       return NextResponse.json(
         { message: "Invalid Codeforces handle" },
@@ -58,6 +59,7 @@ export async function POST(req: NextRequest) {
 
     const newUser = new User({
       codeforcesHandle: normalizedHandle,
+      codeforcesHandleLower:normalizedHandleLower,
       pin: hashedPassword,
       rating: rating,
       avatar: cfUser.avatar,
@@ -71,6 +73,7 @@ export async function POST(req: NextRequest) {
     });
 
     await newUser.save();
+    console.log("its wroking")
     return NextResponse.json(
       { message: "User created successfully" },
       { status: 201 }

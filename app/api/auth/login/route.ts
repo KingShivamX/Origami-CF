@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await User.findOne({ codeforcesHandle: normalizedHandle });
+    const user = await User.findOne({ codeforcesHandleLower: normalizedHandle });
     if (!user) {
       return NextResponse.json(
         { message: "Invalid credentials" },

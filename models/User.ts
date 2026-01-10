@@ -2,6 +2,7 @@ import { Schema, model, models, Document } from "mongoose";
 
 export interface IUser extends Document {
   codeforcesHandle: string;
+  codeforcesHandleLower:string;
   pin: string;
   rating: number;
   avatar: string;
@@ -14,6 +15,7 @@ export interface IUser extends Document {
 
 const UserSchema: Schema = new Schema({
   codeforcesHandle: { type: String, required: true, unique: true },
+  codeforcesHandleLower: {type:String,required:true},
   pin: { type: String, required: true },
   rating: { type: Number, default: 1500 },
   avatar: { type: String, required: true },
