@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
-
+      
       const decoded = jwt.verify(body.resetToken, process.env.JWT_SECRET!) as {
         userId: string;
       };
