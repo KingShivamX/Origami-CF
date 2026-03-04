@@ -20,7 +20,7 @@ async function getUserFromToken(request: NextRequest) {
     await dbConnect();
     const user = await User.findById(decoded.userId);
     return user;
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }

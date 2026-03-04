@@ -9,110 +9,169 @@ body {
 
 @layer base {
   :root {
+    --background-primary: #FFFFFF;
+    --background-secondary: #F5F7FA;
+    --surface: #FFFFFF;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --accent-primary: #7C3AED;
+    --accent-hover: #6D28D9;
+    --border-color: #E2E8F0;
+
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 201 77% 46%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
+    --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 45 96% 71%;
-    --accent-foreground: 45 95% 15%;
-    --destructive: 357 72% 42%;
-    --destructive-foreground: 0 0% 100%;
+    --accent: 262.1 83.3% 57.8%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 201 77% 46%;
-    --chart-1: 201 77% 46%;
-    --chart-2: 45 96% 71%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 357 72% 42%;
+    --ring: 262.1 83.3% 57.8%;
     --radius: 0.75rem;
   }
+
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 201 77% 55%;
-    --primary-foreground: 201 77% 15%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 45 96% 65%;
-    --accent-foreground: 45 95% 10%;
-    --destructive: 357 80% 55%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 201 77% 55%;
-    --chart-1: 201 77% 55%;
-    --chart-2: 45 96% 65%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 357 80% 55%;
+    --background-primary: #0B1120;
+    --background-secondary: #111827;
+    --surface: #1E293B;
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --accent-primary: #8B5CF6;
+    --accent-hover: #A78BFA;
+    --border-color: #334155;
+
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 263.4 70% 50.4%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 263.4 70% 50.4%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 25% 27%;
+    /* Based on #334155 */
+    --input: 215 25% 27%;
+    /* Based on #334155 */
+    --ring: 263.4 70% 50.4%;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
+
   body {
     @apply bg-background text-foreground;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
+    font-family: var(--font-sans), system-ui, sans-serif;
+    font-size: 16px;
+    font-feature-settings: "rlig" 1, "calt" 1;
     overflow-x: hidden;
   }
 
-  html {
-    overflow-x: hidden;
+  h1 {
+    @apply text-[40px] md:text-[56px] lg:text-[72px] font-extrabold leading-[1.1] tracking-tight;
   }
 
-  /* Professional enhancements */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-semibold tracking-tight;
+  h2 {
+    @apply text-[32px] md:text-[42px] font-bold leading-tight tracking-tight;
   }
 
-  /* Smooth transitions for interactive elements */
+  h3 {
+    @apply text-[24px] md:text-[28px] font-semibold leading-snug tracking-tight;
+  }
+
+  .body-large {
+    @apply text-[18px] font-normal leading-relaxed;
+  }
+
+  .caption {
+    @apply text-[14px] leading-normal;
+  }
+
+  /* Centered Container */
+  .container-custom {
+    @apply mx-auto max-w-[1200px] px-6;
+  }
+
+  /* Section Paddings */
+  section {
+    @apply py-[40px] md:py-[56px] lg:py-[80px];
+  }
+
   button,
   a,
   [role="button"] {
-    @apply transition-all duration-200 ease-in-out;
+    @apply transition-all duration-300 ease-in-out;
   }
 
-  /* Enhanced focus styles */
   *:focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    @apply outline-none ring-2 ring-accentPrimary ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
   }
 
-  /* Card shadows for depth */
-  .card {
-    @apply shadow-sm hover:shadow-md transition-shadow duration-200;
+  .preserve-3d {
+    transform-style: preserve-3d;
   }
 
-  /* Professional table styling */
-  table {
-    @apply border-collapse;
+  .backface-hidden {
+    backface-visibility: hidden;
   }
 
-  th {
-    @apply font-medium;
+  /* Premium Noise Texture */
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.05;
+    pointer-events: none;
+  }
+
+  /* Animated Floating Mesh */
+  .bg-mesh {
+    background: radial-gradient(at 0% 0%, hsla(263, 70%, 50%, 0.15) 0px, transparent 50%),
+      radial-gradient(at 50% 0%, hsla(280, 65%, 60%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(263, 70%, 50%, 0.15) 0px, transparent 50%);
+    filter: blur(100px);
+    opacity: 0.4;
+  }
+
+  .animate-page-entrance {
+    animation: page-entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes page-entrance {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 

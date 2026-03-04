@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import {
   InputOTP,
   InputOTPGroup,
@@ -13,19 +14,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 import useUser from "@/hooks/useUser";
 
-// Custom masked InputOTPSlot component that overlays the original slot  
-const MaskedInputOTPSlot = ({ index, showPin, pin }: { index: number; showPin: boolean; pin: string }) => {
+const MaskedInputOTPSlot = ({
+  index,
+  showPin,
+  pin,
+}: {
+  index: number;
+  showPin: boolean;
+  pin: string;
+}) => {
   const hasChar = pin[index];
-  
+
   return (
-    <div className="relative">
-      <InputOTPSlot index={index} className={showPin ? "" : "text-transparent"} />
-      {!showPin && hasChar && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-lg">•</span>
-        </div>
-      )}
-    </div>
+    <InputOTPSlot
+      index={index}
+      className={cn("transition-all duration-200", !showPin && hasChar && "font-black text-2xl")}
+    >
+      {!showPin && hasChar ? "•" : null}
+    </InputOTPSlot>
   );
 };
 
@@ -79,7 +85,7 @@ const Settings = () => {
   };
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-2xl text-center">
           {isLogin ? "Login" : "Register"}

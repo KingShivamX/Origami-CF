@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import AuthGuard from "@/components/AuthGuard";
@@ -8,7 +8,7 @@ import NavBar from "@/components/NavBar";
 import ThemeProvider from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
 
-const montserrat = Montserrat({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
@@ -155,7 +155,7 @@ export default function RootLayout({
       <body
         className={cn(
           "bg-background font-sans antialiased",
-          montserrat.variable,
+          inter.variable,
           monda.variable
         )}
         suppressHydrationWarning
@@ -166,10 +166,18 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <div className="relative flex min-h-screen flex-col bg-background overflow-x-hidden">
+            {/* Global Premium Layers */}
+            <div className="fixed inset-0 bg-noise z-50 mix-blend-overlay opacity-[0.03] pointer-events-none" />
+            <div className="fixed inset-0 bg-mesh -z-20" />
+
             <NavBar />
             <main className="flex-1">
-              <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 max-w-7xl">
-                <AuthGuard>{children}</AuthGuard>
+              <div className="mx-auto max-w-[1200px] px-6 pb-[40px] md:pb-[56px] lg:pb-[80px] pt-4 md:pt-6">
+                <AuthGuard>
+                  <div className="animate-page-entrance">
+                    {children}
+                  </div>
+                </AuthGuard>
               </div>
             </main>
           </div>

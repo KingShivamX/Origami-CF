@@ -66,27 +66,34 @@ const History = ({
             {/* Problems - standardized grid layout */}
             <div className="grid grid-cols-4 gap-3 flex-1">
               {training.problems.map((p, index) => {
-                const ratingKey =
-                  `P${index + 1}` as keyof typeof training.customRatings;
+                const ratingKey = `P${index + 1}` as keyof typeof training.customRatings;
                 const problemRating = training.customRatings[ratingKey];
+
+                const getRatingColor = (rating: number) => {
+                  if (rating < 1200) return "bg-gray-500";
+                  if (rating < 1400) return "bg-green-500";
+                  if (rating < 1600) return "bg-cyan-500";
+                  if (rating < 1900) return "bg-blue-500";
+                  if (rating < 2100) return "bg-violet-500";
+                  if (rating < 2300) return "bg-orange-500";
+                  return "bg-red-500";
+                };
+
+                const statusClass = p.solvedTime
+                  ? "bg-green-500/10 hover:bg-green-500/20 text-green-700"
+                  : "bg-red-500/10 hover:bg-red-500/20 text-red-700";
+
                 return (
                   <div
                     key={p.contestId}
-                    className={`flex items-center justify-between gap-2 px-3 py-2 rounded-md transition-colors border border-border/30 min-h-[40px] text-sm font-medium ${
-                      p.solvedTime
-                        ? "bg-green-500/10 hover:bg-green-500/20 text-green-700"
-                        : "bg-red-500/10 hover:bg-red-500/20 text-red-700"
-                    }`}
+                    className={`flex items-center justify-between gap-2 px-3 py-2 rounded-md transition-colors border border-border/30 min-h-[40px] text-sm font-medium ${statusClass}`}
                   >
                     {/* Left side - Problem ID with solve time */}
                     <div className="flex items-center gap-1">
                       {p.solvedTime && (
                         <>
                           <span className="font-bold text-sm">
-                            {Math.floor(
-                              (p.solvedTime - training.startTime) / 60000
-                            )}
-                            m
+                            {Math.floor((p.solvedTime - training.startTime) / 60000)}m
                           </span>
                           <span className="text-muted-foreground">|</span>
                         </>
@@ -103,21 +110,7 @@ const History = ({
                     {/* Right side - Rating */}
                     {problemRating && (
                       <span
-                        className={`font-bold px-1.5 py-0.5 rounded text-white text-sm flex-shrink-0 ${
-                          problemRating < 1200
-                            ? "bg-gray-500"
-                            : problemRating < 1400
-                              ? "bg-green-500"
-                              : problemRating < 1600
-                                ? "bg-cyan-500"
-                                : problemRating < 1900
-                                  ? "bg-blue-500"
-                                  : problemRating < 2100
-                                    ? "bg-violet-500"
-                                    : problemRating < 2300
-                                      ? "bg-orange-500"
-                                      : "bg-red-500"
-                        }`}
+                        className={`font-bold px-1.5 py-0.5 rounded text-white text-sm flex-shrink-0 ${getRatingColor(problemRating)}`}
                       >
                         {problemRating}
                       </span>
@@ -185,24 +178,32 @@ const History = ({
                 const ratingKey =
                   `P${index + 1}` as keyof typeof training.customRatings;
                 const problemRating = training.customRatings[ratingKey];
+
+                const getRatingColor = (rating: number) => {
+                  if (rating < 1200) return "bg-gray-500";
+                  if (rating < 1400) return "bg-green-500";
+                  if (rating < 1600) return "bg-cyan-500";
+                  if (rating < 1900) return "bg-blue-500";
+                  if (rating < 2100) return "bg-violet-500";
+                  if (rating < 2300) return "bg-orange-500";
+                  return "bg-red-500";
+                };
+
+                const statusClass = p.solvedTime
+                  ? "bg-green-500/10 hover:bg-green-500/20 text-green-700"
+                  : "bg-red-500/10 hover:bg-red-500/20 text-red-700";
+
                 return (
                   <div
                     key={p.contestId}
-                    className={`flex items-center justify-between gap-2 px-2 sm:px-3 py-2 rounded-md transition-colors border border-border/30 min-h-[36px] sm:min-h-[40px] text-sm font-medium ${
-                      p.solvedTime
-                        ? "bg-green-500/10 hover:bg-green-500/20 text-green-700"
-                        : "bg-red-500/10 hover:bg-red-500/20 text-red-700"
-                    }`}
+                    className={`flex items-center justify-between gap-2 px-2 sm:px-3 py-2 rounded-md transition-colors border border-border/30 min-h-[36px] sm:min-h-[40px] text-sm font-medium ${statusClass}`}
                   >
                     {/* Left side - Problem ID with solve time */}
                     <div className="flex items-center gap-1">
                       {p.solvedTime && (
                         <>
                           <span className="font-bold text-sm">
-                            {Math.floor(
-                              (p.solvedTime - training.startTime) / 60000
-                            )}
-                            m
+                            {Math.floor((p.solvedTime - training.startTime) / 60000)}m
                           </span>
                           <span className="text-muted-foreground">|</span>
                         </>
@@ -219,21 +220,7 @@ const History = ({
                     {/* Right side - Rating */}
                     {problemRating && (
                       <span
-                        className={`font-bold px-1.5 py-0.5 rounded text-white text-sm flex-shrink-0 ${
-                          problemRating < 1200
-                            ? "bg-gray-500"
-                            : problemRating < 1400
-                              ? "bg-green-500"
-                              : problemRating < 1600
-                                ? "bg-cyan-500"
-                                : problemRating < 1900
-                                  ? "bg-blue-500"
-                                  : problemRating < 2100
-                                    ? "bg-violet-500"
-                                    : problemRating < 2300
-                                      ? "bg-orange-500"
-                                      : "bg-red-500"
-                        }`}
+                        className={`font-bold px-1.5 py-0.5 rounded text-white text-sm flex-shrink-0 ${getRatingColor(problemRating)}`}
                       >
                         {problemRating}
                       </span>

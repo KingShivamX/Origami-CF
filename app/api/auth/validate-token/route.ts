@@ -14,14 +14,14 @@ export async function POST(req: NextRequest) {
     }
 
     const token = authHeader.split(" ")[1];
-    
+
     // Verify JWT token
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    
+
     // Check if user still exists in database
     await dbConnect();
     const user = await User.findById(decoded.userId);
-    
+
     if (!user) {
       return NextResponse.json(
         { message: "User not found" },
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ valid: true });
-  } catch (error) {
+  } catch (_error) {
     // Token is invalid or expired
     return NextResponse.json(
       { message: "Invalid token" },

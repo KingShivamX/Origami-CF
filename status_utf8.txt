@@ -1,0 +1,32 @@
+ D .env.example
+ M .eslintrc.json
+ M app/api/auth/register/route.ts
+ M app/api/auth/validate-token/route.ts
+ M app/api/saved/route.ts
+ M app/contest/page.tsx
+ M app/globals.css
+ M app/history/page.tsx
+ M app/layout.tsx
+ M app/not-found.tsx
+ M app/page.tsx
+ M app/saved/page.tsx
+ M app/upsolve/page.tsx
+ M components/ChangePinDialog.tsx
+ M components/CustomProblemsList.tsx
+ M components/Error.tsx
+ M components/History.tsx
+ M components/NavBar.tsx
+ M components/RatingChangeModal.tsx
+ M components/Settings.tsx
+ M components/ui/button.tsx
+ M components/ui/card.tsx
+ M components/ui/input-otp.tsx
+ M components/ui/input.tsx
+ M globals.css
+ D package-lock.json
+ M package.json
+ M tailwind.config.ts
+?? app/error.tsx
+?? app/global-error.tsx
+?? diff_stat.txt
+?? status.txt

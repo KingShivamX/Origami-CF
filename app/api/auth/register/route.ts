@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const normalizedHandleLower=normalizedHandle.toLowerCase();
+    const normalizedHandleLower = normalizedHandle.toLowerCase();
     const existingUser = await User.findOne({ codeforcesHandleLower: normalizedHandleLower });
     if (existingUser) {
       return NextResponse.json(
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     const newUser = new User({
       codeforcesHandle: normalizedHandle,
-      codeforcesHandleLower:normalizedHandleLower,
+      codeforcesHandleLower: normalizedHandleLower,
       pin: hashedPassword,
       rating: rating,
       avatar: cfUser.avatar,
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     });
 
     await newUser.save();
-    console.log("its wroking")
+    console.log("its working");
     return NextResponse.json(
       { message: "User created successfully" },
       { status: 201 }
