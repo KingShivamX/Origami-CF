@@ -46,7 +46,7 @@ const CustomProblemsList = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {allSortedProblems.map((problem, index) => (
+          {allSortedProblems.map((problem) => (
             <div
               key={`${problem.contestId}-${problem.index}`}
               className={cn(

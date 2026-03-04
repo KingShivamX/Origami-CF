@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Sheet,
   SheetContent,
@@ -75,7 +74,7 @@ const ChangePinDialog = () => {
       } else {
         setError(response.error || "Failed to change PIN.");
       }
-    } catch (error) {
+    } catch (_error) {
       setError("Failed to connect to the server.");
     } finally {
       setIsLoading(false);
