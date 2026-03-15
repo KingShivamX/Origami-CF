@@ -26,6 +26,7 @@ const useTraining = () => {
   const { addTraining } = useHistory();
   const { addUpsolvedProblems } = useUpsolvedProblems();
 
+
   const [isClient, setIsClient] = useState(false);
   const [problems, setProblems] = useState<TrainingProblem[]>([]);
   const [training, setTraining] = useState<Training | null>(null);
@@ -176,7 +177,16 @@ const useTraining = () => {
 
     const ratingChange = await addTraining({ ...currentTraining, problems: finalProblems });
 
-    const unsolvedProblems = finalProblems.filter((p) => !p.solvedTime);
+    // Only add to upsolve queue problems that:
+    // 1. Were not solved during this training session (no solvedTime), AND
+    // 2. Are not already solved on Codeforces globally (prevents ghost dots on heatmap
+    //    from problems the user solved years ago being auto-marked as solved today)
+    const globalSolvedIds = new Set(
+      (solvedProblems ?? []).map((p) => `${p.contestId}_${p.index}`)
+    );
+    const unsolvedProblems = finalProblems.filter(
+      (p) => p.solvedTime == null && !globalSolvedIds.has(`${p.contestId}_${p.index}`)
+    );
     // Keep the original order as they were selected for training (1st, 2nd, 3rd, 4th)
     addUpsolvedProblems(unsolvedProblems);
 

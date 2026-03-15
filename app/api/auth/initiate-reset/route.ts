@@ -15,7 +15,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await User.findOne({ codeforcesHandle: handle });
+    // Normalize: trim spaces and convert to lowercase (matches login route)
+    const normalizedHandle = handle.trim().toLowerCase();
+
+    const user = await User.findOne({ codeforcesHandle: normalizedHandle });
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }

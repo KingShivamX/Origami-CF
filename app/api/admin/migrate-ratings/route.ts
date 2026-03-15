@@ -9,12 +9,13 @@ import { migrateAllRatings, previewRatingMigration, recalculateUserRating } from
  * PUT /api/admin/migrate-ratings - Recalculate specific user
  */
 
-// Security check - in production, you'd want proper admin authentication
+// Security check: require ADMIN_KEY env var to be set AND match the request header
 const isAdminRequest = (req: NextRequest): boolean => {
-  // For development, allow all requests
-  // In production, add proper authentication here
+  const configuredKey = process.env.ADMIN_KEY;
+  // Refuse all requests if the key is not configured — prevents open access
+  if (!configuredKey) return false;
   const adminKey = req.headers.get("x-admin-key");
-  return adminKey === process.env.ADMIN_KEY || process.env.NODE_ENV === "development";
+  return adminKey === configuredKey;
 };
 
 export async function GET(req: NextRequest) {

@@ -27,7 +27,7 @@ export const useHeatmapData = (
     if (history && history.length > 0) {
       history.forEach((training) => {
         training.problems.forEach((problem) => {
-          if (problem.solvedTime) {
+          if (problem.solvedTime != null) {
             totalSolved++;
 
             // Only add to heatmap if solved in the last year
@@ -49,7 +49,7 @@ export const useHeatmapData = (
     // Process upsolve problems
     if (upsolvedProblems && upsolvedProblems.length > 0) {
       upsolvedProblems.forEach((problem) => {
-        if (problem.solvedTime) {
+        if (problem.solvedTime != null) {
           totalSolved++;
 
           // Only add to heatmap if solved in the last year
@@ -70,7 +70,7 @@ export const useHeatmapData = (
     // Process custom/saved problems
     if (customProblems && customProblems.length > 0) {
       customProblems.forEach((problem) => {
-        if (problem.solvedTime) {
+        if (problem.solvedTime != null) {
           totalSolved++;
 
           // Only add to heatmap if solved in the last year
