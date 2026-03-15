@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import useUser from "@/hooks/useUser";
 import useProblems from "@/hooks/useProblems";
@@ -34,6 +34,9 @@ const useTraining = () => {
   const [submissionStatuses, setSubmissionStatuses] = useState<
     SubmissionStatus[]
   >([]);
+  // Prevents finishTraining from running more than once per contest (e.g. double-fire
+  // when useCallback is recreated while the timer effect is still pending)
+  const isFinishingRef = useRef(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -113,17 +116,22 @@ const useTraining = () => {
   }, [user, training, isTraining, isClient]);
 
   const finishTraining = useCallback(async () => {
-    // Immediately set training state to false to prevent any race conditions
+    // Guard: only one finishTraining can run at a time per contest
+    if (isFinishingRef.current) return;
+    isFinishingRef.current = true;
+
     setIsTraining(false);
 
-    if (!training) return;
+    if (!training) {
+      isFinishingRef.current = false;
+      return;
+    }
 
     // Check if we're finishing during pre-contest period
     const now = Date.now();
     const isPreContestPeriod = now < training.startTime;
 
     if (isPreContestPeriod) {
-      // If finished during pre-contest period, just clear states without saving
       setProblems([]);
       setTraining(null);
       setSubmissionStatuses([]);
@@ -131,24 +139,49 @@ const useTraining = () => {
         localStorage.removeItem(TRAINING_STORAGE_KEY);
         localStorage.removeItem(SUBMISSION_STATUS_STORAGE_KEY);
       }
+      isFinishingRef.current = false;
       router.push("/contest");
       return;
     }
 
-    // Use a local copy of training for the async operations
+    // Snapshot the training data locally before any state/storage changes
     const currentTraining = { ...training };
 
-    // Clear all training-related states immediately
+    // Clear React state (UI) immediately so the user doesn't see a stale contest
     setProblems([]);
     setTraining(null);
     setSubmissionStatuses([]);
-    if (isClient) {
-      localStorage.removeItem(TRAINING_STORAGE_KEY);
-      localStorage.removeItem(SUBMISSION_STATUS_STORAGE_KEY);
+    // ⚠️  Do NOT clear localStorage yet — we need it as a safety net if the
+    //     API call below fails (e.g. network error, server error). We will clear
+    //     it only after a successful save.
+
+    // --- Resolve the user object ---
+    // `user` from the hook may still be null if the page just loaded (race with
+    // async token validation). Read the stored user from localStorage as a
+    // reliable fallback — it is always written on login and kept in sync.
+    let resolvedUser = user;
+    if (!resolvedUser && isClient) {
+      try {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) resolvedUser = JSON.parse(storedUser);
+      } catch {
+        // ignore parse errors
+      }
     }
 
+    if (!resolvedUser) {
+      // Still no user (not logged in) — restore localStorage so the training
+      // is not lost, and bail.
+      if (isClient) {
+        localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(currentTraining));
+      }
+      isFinishingRef.current = false;
+      return;
+    }
+
+    // Fetch final submission statuses from Codeforces
     const statusResponse = await getTrainingSubmissionStatus(
-      user!,
+      resolvedUser,
       currentTraining.problems,
       currentTraining.startTime
     );
@@ -163,7 +196,6 @@ const useTraining = () => {
         const problemId = `${problem.contestId}_${problem.index}`;
         const isSolved = solvedProblemIds.has(problemId);
         const submission = newStatuses.find((s) => s.problemId === problemId);
-
         return {
           ...problem,
           solvedTime: isSolved
@@ -175,27 +207,38 @@ const useTraining = () => {
       });
     }
 
-    const ratingChange = await addTraining({ ...currentTraining, problems: finalProblems });
+    // Save to the database
+    const saved = await addTraining({ ...currentTraining, problems: finalProblems });
 
-    // Only add to upsolve queue problems that:
-    // 1. Were not solved during this training session (no solvedTime), AND
-    // 2. Are not already solved on Codeforces globally (prevents ghost dots on heatmap
-    //    from problems the user solved years ago being auto-marked as solved today)
+    if (saved !== null) {
+      // ✅ Successfully saved — now it's safe to clear localStorage
+      if (isClient) {
+        localStorage.removeItem(TRAINING_STORAGE_KEY);
+        localStorage.removeItem(SUBMISSION_STATUS_STORAGE_KEY);
+      }
+    } else {
+      // ❌ Save failed — keep the training in localStorage so the next page
+      //    load will retry finishing the contest automatically.
+      if (isClient) {
+        localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(currentTraining));
+      }
+      console.error("Failed to save training — data preserved in localStorage for retry.");
+      isFinishingRef.current = false;
+      return;
+    }
+
+    // Add unsolved problems to the upsolve queue (excluding globally CF-solved ones)
     const globalSolvedIds = new Set(
       (solvedProblems ?? []).map((p) => `${p.contestId}_${p.index}`)
     );
     const unsolvedProblems = finalProblems.filter(
       (p) => p.solvedTime == null && !globalSolvedIds.has(`${p.contestId}_${p.index}`)
     );
-    // Keep the original order as they were selected for training (1st, 2nd, 3rd, 4th)
     addUpsolvedProblems(unsolvedProblems);
 
-    // Note: Rating changes are still calculated and applied in the background
-    // Users can see their updated rating in their profile
-    // Contest performance is shown in the history
-
+    isFinishingRef.current = false;
     router.push("/history");
-  }, [training, addTraining, router, addUpsolvedProblems, isClient, user]);
+  }, [training, addTraining, router, addUpsolvedProblems, isClient, user, solvedProblems]);
 
   // Redirect if no user (only after loading is complete)
   useEffect(() => {
@@ -234,6 +277,10 @@ const useTraining = () => {
     const timeLeft = training.endTime - now;
 
     if (timeLeft <= 0) {
+      // Don't call finishTraining until the user object is available.
+      // isUserLoading is true while the token is being validated — wait for it.
+      // Once user is resolved the effect will re-run and finishTraining will fire.
+      if (isUserLoading) return;
       finishTraining();
       return;
     }
