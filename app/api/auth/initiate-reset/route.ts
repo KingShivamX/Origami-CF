@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   try {
     await dbConnect();
     const { handle } = await req.json();
-
+    
     if (!handle) {
       return NextResponse.json(
         { message: "Codeforces handle is required" },
@@ -15,17 +15,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Normalize: trim spaces and convert to lowercase (matches login route)
-    const normalizedHandle = handle.trim().toLowerCase();
+    const normalizeHandle=handle.trim().toLowerCase();
 
-    const user = await User.findOne({ codeforcesHandle: normalizedHandle });
+    const user = await User.findOne({ codeforcesHandleLower: normalizeHandle });
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
     // Create a short-lived token for the verification process
     const verificationToken = jwt.sign(
-      { userId: user._id, handle: user.codeforcesHandle },
+      { userId: user._id, handle: user.codeforcesHandleLower },
       process.env.JWT_SECRET!,
       { expiresIn: "5m" } // Token is valid for 5 minutes
     );

@@ -27,16 +27,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // First try exact lowercase match (fast path, covers all new registrations)
-    let user = await User.findOne({ codeforcesHandle: normalizedHandle });
-
-    // Fallback: case-insensitive search for legacy accounts stored with mixed-case
-    if (!user) {
-      user = await User.findOne({
-        codeforcesHandle: { $regex: new RegExp(`^${normalizedHandle}$`, "i") },
-      });
-    }
-
+    const user = await User.findOne({ codeforcesHandleLower: normalizedHandle });
     if (!user) {
       return NextResponse.json(
         { message: "Invalid credentials" },
