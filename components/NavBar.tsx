@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import ModeToggle from "@/components/ModeToggle";
 import { Menu } from "lucide-react";
 import ClientOnly from "@/components/ClientOnly";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useUser from "@/hooks/useUser";
+import { motion } from "framer-motion";
 import {
   Sheet,
   SheetContent,
@@ -30,27 +32,33 @@ const NavBar = () => {
   const { user } = useUser();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="flex h-16 w-full px-6 items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b border-borderColor/20 bg-surface/70 backdrop-blur-md transition-all duration-300">
+      <div className="container-custom flex h-[72px] items-center justify-between">
         {/* Left side - Navigation */}
         <div className="flex items-center">
           <div className="mr-8">
             <Link href="/" className="flex items-center space-x-2">
-              <img src="/favicon.ico" alt="Origami-CF" className="w-8 h-8" />
+              <Image src="/favicon.ico" alt="Origami-CF" width={32} height={32} className="w-8 h-8 filter brightness-110" />
             </Link>
           </div>
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-8">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`transition-colors hover:text-foreground/80 ${
-                  pathname === link.href
-                    ? "text-foreground font-medium"
-                    : "text-foreground/60"
-                }`}
+                className={`relative py-2 text-[15px] transition-colors hover:text-accentPrimary ${pathname === link.href
+                  ? "text-accentPrimary font-bold"
+                  : "text-textSecondary"
+                  }`}
               >
                 {link.label}
+                {pathname === link.href && (
+                  <motion.div
+                    layoutId="navbar-underline"
+                    className="absolute left-0 -bottom-[1px] h-[2px] w-full bg-accentPrimary"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
               </Link>
             ))}
           </nav>
@@ -99,9 +107,11 @@ const NavBar = () => {
                   <SheetTitle>
                     <div onClick={() => setIsMenuOpen(false)}>
                       <Link href="/" className="flex items-center space-x-2">
-                        <img
+                        <Image
                           src="/favicon.ico"
                           alt="Origami-CF"
+                          width={32}
+                          height={32}
                           className="w-8 h-8"
                         />
                       </Link>
@@ -114,11 +124,10 @@ const NavBar = () => {
                       key={link.href}
                       href={link.href}
                       onClick={() => setIsMenuOpen(false)}
-                      className={`text-xl ${
-                        pathname === link.href
-                          ? "text-foreground font-medium"
-                          : "text-muted-foreground"
-                      }`}
+                      className={`text-xl ${pathname === link.href
+                        ? "text-foreground font-medium"
+                        : "text-muted-foreground"
+                        }`}
                     >
                       {link.label}
                     </Link>

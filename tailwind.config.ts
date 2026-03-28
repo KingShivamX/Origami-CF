@@ -10,7 +10,6 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)"],
         mono: ["var(--font-mono)"],
       },
       borderRadius: {
@@ -19,6 +18,14 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        backgroundPrimary: "var(--background-primary)",
+        backgroundSecondary: "var(--background-secondary)",
+        surface: "var(--surface)",
+        textPrimary: "var(--text-primary)",
+        textSecondary: "var(--text-secondary)",
+        accentPrimary: "var(--accent-primary)",
+        accentHover: "var(--accent-hover)",
+        borderColor: "var(--border-color)",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -59,6 +66,15 @@ const config: Config = {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+      },
+      keyframes: {
+        "gradient-flow": {
+          "0%, 100%": { "background-position": "0% 50%" },
+          "50%": { "background-position": "100% 50%" },
+        },
+      },
+      animation: {
+        "gradient-flow": "gradient-flow 6s ease infinite",
       },
     },
   },

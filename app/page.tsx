@@ -1,8 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   BarChart,
@@ -10,165 +10,345 @@ import {
   RefreshCw,
   LogOut,
 } from "lucide-react";
-import useUser from "@/hooks/useUser";
+
+// Components
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Loader from "@/components/Loader";
 import Profile from "@/components/Profile";
 import Settings from "@/components/Settings";
 import ChangePinDialog from "@/components/ChangePinDialog";
+import ActivityHeatmap from "@/components/ActivityHeatmap";
+
+// Hooks & Utilities
+import { cn } from "@/lib/utils";
+import useUser from "@/hooks/useUser";
 import useHistory from "@/hooks/useHistory";
 import useUpsolvedProblems from "@/hooks/useUpsolvedProblems";
 import useCustomProblems from "@/hooks/useCustomProblems";
-import ActivityHeatmap from "@/components/ActivityHeatmap";
 import { useHeatmapData } from "@/hooks/useHeatmapData";
-import { useState } from "react";
 
 export default function Home() {
   const { user, isLoading: isUserLoading, logout, syncProfile } = useUser();
-  const { history, isLoading: isHistoryLoading } = useHistory();
-  const { upsolvedProblems, isLoading: isUpsolveLoading } =
-    useUpsolvedProblems();
-  const { customProblems, isLoading: isCustomLoading } = useCustomProblems();
+  const { history } = useHistory();
+  const { upsolvedProblems } = useUpsolvedProblems();
+  const { customProblems } = useCustomProblems();
+
   const { totalSolved } = useHeatmapData(
     history || [],
     upsolvedProblems || [],
     customProblems || []
   );
+
   const [isSyncing, setIsSyncing] = useState(false);
 
+  // Enhanced with proper error handling and predictable state resets
   const handleSync = async () => {
-    setIsSyncing(true);
-    await syncProfile();
-    setIsSyncing(false);
+    try {
+      setIsSyncing(true);
+      await syncProfile();
+      // Optional: Add a success toast notification here
+    } catch (error) {
+      console.error("Failed to sync profile:", error);
+      // Optional: Add an error toast notification here
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
-  // Only wait for user loading, load other data in background
+  const scrollToAuth = () => {
+    document.getElementById("auth-section")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   if (isUserLoading) {
     return <Loader />;
   }
 
+  // Framer Motion Variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+      },
+    },
+  };
+
+  // ---------------------------------------------------------------------------
+  // UNAUTHENTICATED VIEW
+  // ---------------------------------------------------------------------------
   if (!user) {
     return (
-      <section className="container flex flex-col items-center justify-start pt-6 md:pt-14 gap-6 pb-8 px-4 md:px-6">
-        <div className="text-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight lg:text-5xl">
-            origami-cf
-          </h1>
-          <p className="mt-4 text-base md:text-lg text-muted-foreground">
-            A better way to practice for Codeforces.
-          </p>
-        </div>
-        <Settings />
-      </section>
+      <div className="relative isolate min-h-screen overflow-hidden bg-backgroundPrimary">
+        {/* Animated Background 3D Objects */}
+        <motion.div
+          animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[10%] left-[5%] -z-10 h-64 w-64 rounded-full bg-gradient-to-br from-accentPrimary/20 to-transparent blur-3xl opacity-40"
+        />
+        <motion.div
+          animate={{ y: [0, 30, 0], rotate: [0, -10, 0] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-[20%] right-[10%] -z-10 h-96 w-96 rounded-full bg-gradient-to-bl from-purple-500/10 to-transparent blur-3xl opacity-30"
+        />
+
+        <section className="container-custom relative flex flex-col items-center justify-center min-h-[90vh] text-center gap-12 pt-20">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            className="z-10 max-w-4xl"
+          >
+            <motion.div
+              variants={itemVariants}
+              className="inline-flex items-center gap-2 px-3 py-1 mb-6 text-sm font-semibold border rounded-full border-accentPrimary/20 bg-accentPrimary/5 text-accentPrimary"
+            >
+              <span className="relative flex w-2 h-2">
+                <span className="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping bg-accentPrimary"></span>
+                <span className="relative inline-flex w-2 h-2 rounded-full bg-accentPrimary"></span>
+              </span>
+              The Future of Competitive Programming
+            </motion.div>
+
+            <motion.h1
+              variants={itemVariants}
+              className="mb-8 drop-shadow-2xl"
+              style={{ transformStyle: "preserve-3d" }}
+            >
+              Level up your <br className="hidden md:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-accentPrimary via-purple-500 to-accentPrimary bg-[length:200%_auto] animate-gradient-flow">
+                Competitive
+              </span>{" "}
+              Programming
+            </motion.h1>
+
+            <motion.p
+              variants={itemVariants}
+              className="max-w-2xl mx-auto mb-10 font-medium leading-relaxed opacity-90 body-large text-textSecondary"
+            >
+              A high-performance workspace for elite developers. Practice with
+              precision, track your progress, and master the algorithms.
+            </motion.p>
+
+            <motion.div
+              variants={itemVariants}
+              className="flex flex-col items-center justify-center gap-6 sm:flex-row"
+            >
+              <Button
+                size="lg"
+                onClick={scrollToAuth}
+                className="h-14 px-10 rounded-[14px] text-lg font-bold shadow-2xl shadow-accentPrimary/40 group relative overflow-hidden"
+              >
+                <span className="relative z-10">Get Started</span>
+                <ArrowRight className="relative z-10 w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                <div className="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-r from-accentPrimary to-purple-600 group-hover:opacity-100" />
+              </Button>
+            </motion.div>
+          </motion.div>
+
+          {/* Centered Login/Register Form */}
+          <motion.div
+            id="auth-section"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="relative z-10 w-full max-w-lg group scroll-mt-24"
+          >
+            <div className="absolute -inset-1 bg-gradient-to-r from-accentPrimary/20 to-purple-500/20 rounded-[28px] blur opacity-25 group-hover:opacity-50 transition duration-1000" />
+            <div className="relative p-1 overflow-hidden border shadow-2xl bg-surface/30 backdrop-blur-2xl border-white/10 rounded-[24px]">
+              <Settings />
+            </div>
+          </motion.div>
+        </section>
+      </div>
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // AUTHENTICATED VIEW
+  // ---------------------------------------------------------------------------
   return (
-    <section className="container grid items-center gap-4 md:gap-6 pb-8 pt-6 md:py-10 px-4 md:px-6">
-      <div className="flex flex-col items-start gap-2">
-        <h1 className="text-2xl md:text-3xl font-bold leading-tight tracking-tighter lg:text-4xl">
-          Welcome back, {user.codeforcesHandle}!
-        </h1>
-        <p className="text-base md:text-lg text-muted-foreground">
-          Here's a summary of your recent activity and progress.
-        </p>
-      </div>
-      <div className="grid gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="sm:col-span-2 lg:col-span-1">
-          <Profile user={user} />
-        </div>
-        <Card className="flex flex-col justify-center min-h-[120px] sm:min-h-[140px]">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm sm:text-base font-medium">
-              Total Solved
-            </CardTitle>
-            <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col justify-center items-center text-center px-3 py-2">
-            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-1 sm:mb-2">
-              {totalSolved}
-            </div>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-tight max-w-full">
-              problems solved across all sessions
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="flex flex-col justify-center min-h-[120px] sm:min-h-[140px]">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm sm:text-base font-medium">
-              Contests
-            </CardTitle>
-            <BarChart className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col justify-center items-center text-center px-3 py-2">
-            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-1 sm:mb-2">
-              {history?.length || 0}
-            </div>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-tight max-w-full">
-              contests completed
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+    <div className="relative isolate min-h-screen pb-20">
+      <main className="relative pt-8 space-y-12 container-custom">
+        {/* Floating Background Accent */}
+        <div className="absolute top-[20%] -right-20 -z-10 h-72 w-72 bg-accentPrimary/5 blur-[100px] rounded-full" />
 
-      <ActivityHeatmap
-        history={history || []}
-        upsolvedProblems={upsolvedProblems || []}
-        customProblems={customProblems || []}
-      />
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+          className="grid grid-cols-1 gap-8 lg:grid-cols-3"
+        >
+          {/* Main Content Column */}
+          <div className="space-y-12 lg:col-span-2">
+            <motion.div variants={itemVariants}>
+              <div className="flex items-end justify-between mb-8">
+                <div>
+                  <h1 className="mb-2 tracking-tight">
+                    Welcome,{" "}
+                    <span className="text-accentPrimary">
+                      {user.codeforcesHandle}
+                    </span>
+                  </h1>
+                  <p className="max-w-lg body-large text-textSecondary">
+                    Algorithmic performance overview and recent activity.
+                  </p>
+                </div>
+              </div>
+              <Profile user={user} />
+            </motion.div>
 
-      <div className="grid gap-4 md:gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base md:text-lg">
-              Account Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSync}
-                disabled={isSyncing}
-                className="w-full text-sm"
-              >
-                <RefreshCw
-                  className={`mr-2 h-4 w-4 ${isSyncing ? "animate-spin" : ""}`}
-                />
-                {isSyncing ? "Syncing..." : "Sync Profile"}
-              </Button>
-              <ChangePinDialog />
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={logout}
-                className="w-full text-sm"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            <motion.div variants={itemVariants}>
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-2xl font-bold">Global Performance Track</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="px-6 rounded-full text-accentPrimary hover:bg-accentPrimary/5"
+                >
+                  Full History <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+              <Card className="p-0 overflow-hidden backdrop-blur-md border-white/5 bg-white/5">
+                <CardContent className="pt-[32px]">
+                  <ActivityHeatmap
+                    history={history || []}
+                    upsolvedProblems={upsolvedProblems || []}
+                    customProblems={customProblems || []}
+                  />
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base md:text-lg">
-              Create a Virtual Contest
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4 text-sm md:text-base">
-              Ready for your next challenge? Create a custom virtual contest.
-            </p>
-            <Button asChild size="sm" className="w-full text-sm">
-              <Link href="/contest">
-                Create Virtual Contest <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </section>
+          {/* Sidebar Column */}
+          <div className="space-y-8">
+            <motion.div variants={itemVariants}>
+              <Card className=" shadow-2xl bg-gradient-to-br from-accentPrimary/10 to-transparent border-accentPrimary/20 shadow-accentPrimary/5">
+                <CardHeader>
+                  <CardTitle className="text-xl">System Workspace</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button
+                    variant="outline"
+                    className="justify-between w-full h-12 group rounded-xl border-white/10"
+                    onClick={handleSync}
+                    disabled={isSyncing}
+                  >
+                    <span className="font-semibold">
+                      {isSyncing ? "Calibrating..." : "Sync CF Universe"}
+                    </span>
+                    <RefreshCw
+                      className={cn("h-4 w-4", isSyncing && "animate-spin")}
+                    />
+                  </Button>
+
+                  {/* Cleaned up brittle wildcard CSS targeting */}
+                  <div className="flex w-full text-base font-bold child-w-full">
+                    <div className="w-full h-12 flex items-center justify-center rounded-xl bg-transparent">
+                      <ChangePinDialog />
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    className="justify-between w-full h-12 text-red-500 border-white/10 rounded-xl hover:text-red-300 hover:bg-red-500/10"
+                    onClick={logout}
+                  >
+                    <span className="font-semibold">Terminate Session</span>
+                    <LogOut className="w-4 h-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <Card className="relative overflow-hidden backdrop-blur-md border-white/5 bg-white/5">
+                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                  <BarChart className="w-32 h-32" />
+                </div>
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold">
+                    Algorithm Mastery
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-8">
+                    <div className="flex items-end justify-between">
+                      <div className="space-y-1">
+                        <span className="text-xs font-bold tracking-widest uppercase text-textSecondary">
+                          Solved Index
+                        </span>
+                        <div className="text-4xl font-black text-white">
+                          {totalSolved}
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-accentPrimary/20">
+                        <CheckCircle className="w-5 h-5 text-accentPrimary" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs font-bold tracking-wider uppercase text-textSecondary">
+                        <span>Progress to Tier 2</span>
+                        <span>65%</span>
+                      </div>
+                      <div className="w-full h-2 overflow-hidden rounded-full bg-white/5">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: "65%" }}
+                          transition={{
+                            duration: 1.5,
+                            ease: "circOut",
+                            delay: 1,
+                          }}
+                          className="h-full bg-gradient-to-r from-accentPrimary to-purple-500 shadow-[0_0_10px_rgba(124,58,237,0.5)]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <Card className="border-white/5 bg-surface/30 backdrop-blur-2xl">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Upcoming Sessions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="mb-6 text-sm font-medium text-textSecondary">
+                    No scheduled training sessions detected in your workspace.
+                  </p>
+                  <Button
+                    asChild
+                    size="lg"
+                    className="w-full h-12 font-bold text-white shadow-sm rounded-xl bg-white/5 hover:bg-white/10 border-white/10"
+                  >
+                    <Link
+                      href="/contest"
+                      className="flex items-center justify-center"
+                    >
+                      Launch Contest <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </motion.div>
+      </main>
+    </div>
   );
 }

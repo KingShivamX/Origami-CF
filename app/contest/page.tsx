@@ -13,12 +13,22 @@ import TagSelector from "@/components/TagSelector";
 import useTags from "@/hooks/useTags";
 import useUser from "@/hooks/useUser";
 import Loader from "@/components/Loader";
-import Error from "@/components/Error";
-import { SubmissionStatus } from "@/utils/codeforces/getTrainingSubmissionStatus";
+import { motion } from "framer-motion";
 
 export default function TrainingPage() {
   const { user } = useUser();
   const { allTags, selectedTags, onTagClick, onClearTags } = useTags();
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
+
   const {
     startTraining,
     stopTraining,
@@ -135,15 +145,23 @@ export default function TrainingPage() {
   }
 
   return (
-    <section className="container grid items-center gap-6 pb-6 pt-2 md:py-4">
-      <div className="flex flex-col items-start gap-1">
-        <h1 className="text-2xl font-bold leading-tight tracking-tight">
-          Create a Contest
+    <motion.section
+      className="container flex flex-col gap-8 pb-20 pt-8"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <motion.div
+        className="flex flex-col items-start gap-2"
+        variants={itemVariants}
+      >
+        <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2">
+          Create a <span className="text-accentPrimary">Contest</span>
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Select problem ratings to generate your custom virtual contest.
+        <p className="text-lg text-textSecondary font-medium max-w-2xl">
+          Engineer your training session. Select problem targets to generate your custom virtual workspace.
         </p>
-      </div>
+      </motion.div>
 
       <div className="space-y-8">
         <Card className="border-2 border-border/50 shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -208,11 +226,10 @@ export default function TrainingPage() {
                               problem as keyof typeof customRatings
                             )
                           }
-                          className={`hide-spinners w-full h-12 text-lg font-semibold text-center rounded-none z-10 ${
-                            isInvalid
-                              ? "border-red-500 focus-visible:ring-red-500"
-                              : ""
-                          }`}
+                          className={`hide-spinners w-full h-12 text-lg font-semibold text-center rounded-none z-10 ${isInvalid
+                            ? "border-red-500 focus-visible:ring-red-500"
+                            : ""
+                            }`}
                         />
                         <Button
                           variant="outline"
@@ -258,6 +275,6 @@ export default function TrainingPage() {
           isRefreshing={isRefreshing}
         />
       </div>
-    </section>
+    </motion.section>
   );
 }

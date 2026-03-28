@@ -9,7 +9,9 @@ import CustomProblemsList from "@/components/CustomProblemsList";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Eye, EyeOff } from "lucide-react";
+import { Plus, Eye, EyeOff, RefreshCw, CheckCircle } from "lucide-react";
+
+import { motion } from "framer-motion";
 
 export default function CustomProblemsPage() {
   const [problemInput, setProblemInput] = useState("");
@@ -135,7 +137,7 @@ export default function CustomProblemsPage() {
 
       // Fetch problem details from Codeforces API
       const response = await fetch(
-        `https://codeforces.com/api/problemset.problems`
+        "https://codeforces.com/api/problemset.problems"
       );
       const data = await response.json();
 
@@ -173,7 +175,7 @@ export default function CustomProblemsPage() {
       await addCustomProblem(newProblem);
       setProblemInput("");
       setError(null);
-    } catch (err) {
+    } catch (_err) {
       setError("Failed to add problem. Please try again.");
     } finally {
       setIsAdding(false);
@@ -186,91 +188,152 @@ export default function CustomProblemsPage() {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleAddProblem();
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
+
   return (
-    <section className="container grid items-center gap-6 pb-6 pt-2 md:py-4">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold leading-tight tracking-tight">
-            Saved Problems
+    <motion.section
+      className="container flex flex-col gap-10 pb-20 pt-8"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <motion.div
+        className="flex flex-col md:flex-row md:items-start md:justify-between gap-6"
+        variants={itemVariants}
+      >
+        <div className="flex flex-col gap-2">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2">
+            Saved <span className="text-accentPrimary">Vault</span>
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Add problems by pasting their links or IDs to track your saved
-            problems.
+          <p className="text-lg text-textSecondary font-medium max-w-2xl">
+            Curate your algorithmic arsenal. Store and track specific challenges that demand further investigation or mastery.
           </p>
         </div>
-        <div className="flex gap-2 self-start sm:self-auto">
+        <div className="flex flex-wrap gap-3 self-start md:self-auto">
           <Button
             variant="outline"
-            size="sm"
+            size="lg"
+            className="h-12 rounded-xl font-bold border-white/10 hover:bg-white/5 transition-all"
             onClick={() => setShowTags(!showTags)}
           >
             {showTags ? (
-              <EyeOff className="h-4 w-4 mr-2" />
+              <EyeOff className="h-5 w-5 mr-2" />
             ) : (
-              <Eye className="h-4 w-4 mr-2" />
+              <Eye className="h-5 w-5 mr-2" />
             )}
             {showTags ? "Hide Tags" : "Show Tags"}
           </Button>
-          <Button variant="outline" onClick={onRefreshCustomProblems}>
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-12 rounded-xl font-bold border-accentPrimary/50 text-accentPrimary hover:bg-accentPrimary hover:text-white transition-all duration-300 shadow-lg shadow-accentPrimary/10"
+            onClick={() => onRefreshCustomProblems()}
+          >
             Refresh Status
           </Button>
         </div>
-      </div>
+      </motion.div>
 
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-lg">Add New Problem</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Paste problem link (e.g., 2161A, 2097/C, or full URL)"
-              value={problemInput}
-              onChange={(e) => setProblemInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="flex-1"
-            />
-            <Button
-              onClick={handleAddProblem}
-              disabled={isAdding || !problemInput.trim()}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {isAdding ? "Adding..." : "Add"}
-            </Button>
+      <motion.div
+        variants={itemVariants}
+        className="w-full"
+      >
+        <Card className="border-white/5 bg-white/5 backdrop-blur-md shadow-2xl overflow-hidden">
+          <CardHeader>
+            <CardTitle className="text-xl font-bold">Import Challenge</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6 pt-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Input
+                placeholder="Paste problem link (e.g., 2161A, 2097/C, or full URL)"
+                value={problemInput}
+                onChange={(e) => setProblemInput(e.target.value)}
+                onKeyDown={handleKeyPress}
+                className="flex-1 h-14 text-lg bg-white/5 border-white/10 rounded-xl focus:ring-accentPrimary/50"
+              />
+              <Button
+                size="lg"
+                onClick={handleAddProblem}
+                disabled={isAdding || !problemInput.trim()}
+                className="h-14 px-10 font-bold text-white bg-accentPrimary hover:bg-accentHover rounded-xl shadow-xl shadow-accentPrimary/20 transition-all active:scale-95"
+              >
+                {isAdding ? (
+                  <RefreshCw className="h-5 w-5 animate-spin mr-2" />
+                ) : (
+                  <Plus className="h-5 w-5 mr-2" />
+                )}
+                {isAdding ? "Processing..." : "Add to Vault"}
+              </Button>
+            </div>
+
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-sm font-semibold text-red-400 bg-red-400/10 p-3 rounded-lg border border-red-400/20"
+              >
+                {error}
+              </motion.p>
+            )}
+
+            <div className="text-sm text-textSecondary space-y-2 bg-black/20 p-5 rounded-2xl border border-white/5">
+              <p className="font-bold text-white/90 flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-accentPrimary" />
+                Input Protocol:
+              </p>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 opacity-80">
+                <li className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-accentPrimary" />
+                  Full Codeforces URLs
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-accentPrimary" />
+                  Short notation (e.g., 2161A)
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-accentPrimary" />
+                  Contest IDs (e.g., 2097/C)
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-accentPrimary" />
+                  Direct index (e.g., 2161/problem/A)
+                </li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <motion.div
+        variants={itemVariants}
+        className="w-full"
+      >
+        {customProblems && customProblems.length > 0 ? (
+          <CustomProblemsList
+            customProblems={customProblems}
+            onDelete={onDelete}
+            showTags={showTags}
+          />
+        ) : (
+          <div className="text-center py-16 text-textSecondary font-medium">
+            No custom problems added yet. Add some problems above to get started!
           </div>
-
-          {error && <p className="text-sm text-red-500">{error}</p>}
-
-          <div className="text-xs text-muted-foreground space-y-1">
-            <p>
-              <strong>Supported formats:</strong>
-            </p>
-            <p>
-              • URLs: codeforces.com/contest/2161/problem/A or
-              codeforces.com/problemset/problem/2097/C
-            </p>
-            <p>• Short: 2161A, 2161/problem/A, or 2097/C</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {customProblems && customProblems.length > 0 ? (
-        <CustomProblemsList
-          customProblems={customProblems}
-          onDelete={onDelete}
-          showTags={showTags}
-        />
-      ) : (
-        <div className="text-center py-16 text-muted-foreground">
-          No custom problems added yet. Add some problems above to get started!
-        </div>
-      )}
-    </section>
+        )}
+      </motion.div>
+    </motion.section>
   );
 }

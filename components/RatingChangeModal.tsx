@@ -26,10 +26,10 @@ export const RatingChangeModal = ({ isOpen, onClose, ratingChange }: RatingChang
   if (!ratingChange) return null;
 
   const { oldRating, newRating, ratingDelta, newRank, isNewMaxRating, performance, solvedCount, totalProblems } = ratingChange;
-  
+
   const isPositive = ratingDelta > 0;
   const isNeutral = ratingDelta === 0;
-  
+
   const getRatingColor = (rating: number) => {
     if (rating < 1200) return "text-gray-600";
     if (rating < 1400) return "text-green-600";
@@ -54,7 +54,7 @@ export const RatingChangeModal = ({ isOpen, onClose, ratingChange }: RatingChang
             Contest Complete!
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           {/* Rating Change Display */}
           <div className="text-center space-y-3">
@@ -65,7 +65,7 @@ export const RatingChangeModal = ({ isOpen, onClose, ratingChange }: RatingChang
                   {oldRating}
                 </div>
               </div>
-              
+
               <div className="flex items-center">
                 {isPositive ? (
                   <TrendingUp className="h-6 w-6 text-green-500" />
@@ -75,7 +75,7 @@ export const RatingChangeModal = ({ isOpen, onClose, ratingChange }: RatingChang
                   <TrendingDown className="h-6 w-6 text-red-500" />
                 )}
               </div>
-              
+
               <div className="text-center">
                 <div className="text-sm text-muted-foreground">New</div>
                 <div className={`text-2xl font-bold ${getRatingColor(newRating)}`}>
@@ -83,12 +83,11 @@ export const RatingChangeModal = ({ isOpen, onClose, ratingChange }: RatingChang
                 </div>
               </div>
             </div>
-            
+
             {/* Rating Delta */}
             <div className="flex items-center justify-center gap-2">
-              <span className={`text-lg font-semibold ${
-                isPositive ? "text-green-600" : isNeutral ? "text-gray-600" : "text-red-600"
-              }`}>
+              <span className={`text-lg font-semibold ${isPositive ? "text-green-600" : isNeutral ? "text-gray-600" : "text-red-600"
+                }`}>
                 {formatRatingChange(ratingDelta)}
               </span>
               {isNewMaxRating && (
@@ -97,13 +96,13 @@ export const RatingChangeModal = ({ isOpen, onClose, ratingChange }: RatingChang
                 </Badge>
               )}
             </div>
-            
+
             {/* New Rank */}
             <Badge variant="secondary" className="text-sm">
               {newRank}
             </Badge>
           </div>
-          
+
           {/* Performance Stats */}
           <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
             <div className="text-center">
@@ -119,7 +118,7 @@ export const RatingChangeModal = ({ isOpen, onClose, ratingChange }: RatingChang
               </div>
             </div>
           </div>
-          
+
           {/* Motivational Message */}
           <div className="text-center text-sm text-muted-foreground">
             {isPositive && (
@@ -129,10 +128,10 @@ export const RatingChangeModal = ({ isOpen, onClose, ratingChange }: RatingChang
               <p>💪 Keep practicing to improve your performance!</p>
             )}
             {!isPositive && !isNeutral && (
-              <p>📈 Don't give up! Every contest is a learning opportunity!</p>
+              <p>📈 Don&apos;t give up! Every contest is a learning opportunity!</p>
             )}
           </div>
-          
+
           {/* Close Button */}
           <Button onClick={onClose} className="w-full">
             Continue
